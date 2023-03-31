@@ -1,0 +1,31 @@
+** Requirements:
+
+Public users will be able to view, filter, and search events on the calendar.
+Authorized organizers will have the ability to add, update, and delete their own events, but cannot modify events created by other organizers.
+New locations can be added by the organizer to provide event locations.
+Calendar events have a predefined set of 15 tags that the event organizer places on the events. Dates, locations, cost, and recurrence are all part of an event.
+These tags can be used to color and highlight the calendar as well as provide filters.
+Simple and easy-to-use interfaces for both the website and mobile app.
+Free or low-cost technology choices.
+Support for filtering capabilities in the SPA and mobile app.
+Voice integration with Alexa.
+Suitable hosting for a small-scale application with 50-100 users per day, primarily during East Coast daytime hours.
+
+** Use Cases:
+
+Users will access the SPA to view, filter, and search the available calendar events.
+Approved and authorized users can add, update, and delete events on the calendar.
+Users will use the mobile app to access the calendar, receive notifications for new events, and apply filters.
+Users will interact with the calendar application through voice commands on Alexa-enabled devices.
+
+
+** Technology/Platform Decisions:
+
+Front-end: React for building the SPA.
+Back-end: Strapi as the headless CMS for managing content and calendar events.
+Calendar Library: FullCalendar for displaying and managing calendar events in the SPA.
+Database: SQLite as the lightweight, serverless, and self-contained database for storing calendar events and other content.
+Hosting: Heroku as the cloud hosting provider for your application, with the free tier sufficient for your usage scenario.
+Mobile App: React Native for building a cross-platform mobile app that works on both iOS and Android devices. (To be implemented in a later version)
+Voice Integration: Alexa Skills Kit (ASK) for creating an Alexa Skill, with Rasa as the natural language understanding and processing framework. (To be implemented in a later version)
+Note that the mobile app and voice integration will be implemented in later versions of the application.

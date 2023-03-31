@@ -17,7 +17,7 @@ function LoginModal({ show, onClose }) {
     if (response.ok) {
       const user = await response.json();
       console.log('User authenticated:', user.username);
-      onClose();x
+      onClose();
     } else {
       console.log('Failed to authenticate');
     }
