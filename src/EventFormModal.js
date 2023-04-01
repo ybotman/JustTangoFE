@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+//import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 
 const EventFormModal = ({
   show,
   onHide,
-  onSubmit,
-  onUpdate,
+  onPost,
+  onPut,
   onDelete,
   selectedEvent,
   categories,
@@ -19,7 +20,7 @@ const EventFormModal = ({
   useEffect(() => {
     if (selectedEvent) {
       setTitle(selectedEvent.title);
-      setCategory(selectedEvent.extendedProps.category);
+      setCategory(selectedEvent.extendedProps.primary_category);
       setDescription(selectedEvent.extendedProps.description);
       setStart(selectedEvent.start.toISOString());
       setEnd(selectedEvent.end?.toISOString() || '');
@@ -34,7 +35,8 @@ const EventFormModal = ({
 
   const handleSubmit = () => {
     if (selectedEvent) {
-      onUpdate({
+      console.log("PUT request event with title category:", title, category);
+      onPut({
         id: selectedEvent.id,
         title,
         primary_category: category,
@@ -43,7 +45,8 @@ const EventFormModal = ({
         end,
       });
     } else {
-      onSubmit({
+      console.log("POST request event with title category:", title, category);
+      onPost({
         title,
         primary_category: category,
         description,
@@ -68,6 +71,11 @@ const EventFormModal = ({
         <Modal.Title>{selectedEvent ? 'Edit Event' : 'Create Event'}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {selectedEvent && (
+          <Form.Text className="text-muted small">
+            Event ID: {selectedEvent.id}
+          </Form.Text>
+        )}
         <Form>
           <Form.Group controlId="eventTitle">
             <Form.Label>Title</Form.Label>

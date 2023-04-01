@@ -38,50 +38,50 @@ function App() {
     setCategories(data);
   };
 
-const renderEventContent = (eventInfo) => {
-  const category = eventInfo.event.extendedProps.primary_category;
+  const renderEventContent = (eventInfo) => {
+    const category = eventInfo.event.extendedProps.primary_category;
 
-  let backgroundColor;
-  let textColor;
-  let fontStyle;
-  let fontWeight;
-  let fontSize;
+    let backgroundColor;
+    let textColor;
+    let fontStyle;
+    let fontWeight;
+    let fontSize;
 
-  switch (category) {
-    case "Milonga":
-      backgroundColor = "royalblue";
-      textColor = "white";
-      fontWeight = "bold";
-      break;
-    case "Practica":
-      backgroundColor = "cyan";
-      textColor = "black";
-      fontWeight = "bold";
-      break;
-    case "Class":
-      backgroundColor = "white";
-      textColor = "black";
-      fontWeight = "normal";
-      fontSize = "smaller";
-      break;
-    case "Beginner":
-      backgroundColor = "white";
-      textColor = "grey";
-      fontStyle = "italic";
-      fontWeight = "normal";
-      fontSize = "smaller";
-      break;
-    default:
-      backgroundColor = "white";
-      textColor = "black";
-  }
+    switch (category) {
+      case "Milonga":
+        backgroundColor = "royalblue";
+        textColor = "white";
+        fontWeight = "bold";
+        break;
+      case "Practica":
+        backgroundColor = "cyan";
+        textColor = "black";
+        fontWeight = "bold";
+        break;
+      case "Class":
+        backgroundColor = "white";
+        textColor = "black";
+        fontWeight = "normal";
+        fontSize = "smaller";
+        break;
+      case "Beginner":
+        backgroundColor = "white";
+        textColor = "grey";
+        fontStyle = "italic";
+        fontWeight = "normal";
+        fontSize = "smaller";
+        break;
+      default:
+        backgroundColor = "white";
+        textColor = "black";
+    }
 
-  return (
-    <div style={{ backgroundColor, color: textColor, fontStyle, fontWeight, fontSize }}>
-      {eventInfo.event.title}
-    </div>
-  );
-};
+    return (
+      <div style={{ backgroundColor, color: textColor, fontStyle, fontWeight, fontSize }}>
+        {eventInfo.event.title}
+      </div>
+    );
+  };
 
 
   const defaultValues = {
@@ -93,7 +93,7 @@ const renderEventContent = (eventInfo) => {
     owner_organizerId: "",
   };
 
-  const handleEventFormSubmit = async (eventData) => {
+  const handleEventFormPost = async (eventData) => {
     const response = await fetch("/api/events", {
       method: "POST",
       headers: {
@@ -101,7 +101,6 @@ const renderEventContent = (eventInfo) => {
       },
       body: JSON.stringify({ ...eventData, ...defaultValues, primary_category: eventData.category }),
     });
-
 
     const createdEvent = await response.json();
     setEvents([...events, createdEvent]);
@@ -112,20 +111,21 @@ const renderEventContent = (eventInfo) => {
     setShowEventFormModal(true);
   };
 
-  const handleEventUpdate = async (updatedEvent) => {
+  const handleEventFormPut = async (updatedEvent) => {
     const response = await fetch(`/api/events/${updatedEvent.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-   body: JSON.stringify({ ...updatedEvent, primary_category: updatedEvent.category }),
+      body: JSON.stringify({ ...updatedEvent, primary_category: updatedEvent.category }),
     });
 
     const updatedEventData = await response.json();
-     setEvents(
-        events.map((event) => (event.id === updatedEventData.id ? updatedEventData : event))
-      );
-    };
+    setEvents(
+      events.map((event) => (event.id === updatedEventData.id ? updatedEventData : event))
+    );
+  };
+
   const handleOrganizersButtonClick = () => {
     toggleLoginModal();
   };
@@ -143,8 +143,8 @@ const renderEventContent = (eventInfo) => {
       <EventFormModal
         show={showEventFormModal}
         onHide={() => setShowEventFormModal(false)}
-        onSubmit={handleEventFormSubmit}
-        onUpdate={handleEventUpdate}
+        onPost={handleEventFormPost}
+        onPut={handleEventFormPut}
         onDelete={handleDeleteEvent}
         selectedEvent={selectedEvent}
         categories={categories}
@@ -153,7 +153,7 @@ const renderEventContent = (eventInfo) => {
       <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-        initialView="listWeek"
+        initialView="dayGridMonth"
         dateClick={handleDateClick}
         eventClick={handleEventClick}
         events={events}
