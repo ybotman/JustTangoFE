@@ -84,14 +84,24 @@ const renderEventContent = (eventInfo) => {
 };
 
 
-const handleEventFormSubmit = async (eventData) => {
-    const response = await fetch('/api/events', {
-      method: 'POST',
+  const defaultValues = {
+    secondary_category: "",
+    tri_category: "",
+    organizer: "",
+    location: "",
+    recurrence_rule: "",
+    owner_organizerId: "",
+  };
+
+  const handleEventFormSubmit = async (eventData) => {
+    const response = await fetch("/api/events", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-    body: JSON.stringify({ ...eventData, primary_category: eventData.category}),
+      body: JSON.stringify({ ...eventData, ...defaultValues, primary_category: eventData.category }),
     });
+
 
     const createdEvent = await response.json();
     setEvents([...events, createdEvent]);
