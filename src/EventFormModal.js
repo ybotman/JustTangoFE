@@ -32,28 +32,28 @@ const EventFormModal = ({
     }
   }, [selectedEvent]);
 
-const handleSubmit = () => {
-  if (selectedEvent) {
-    onUpdate({
-      id: selectedEvent.id,
-      title,
-      primary_category: category, // change this from 'category' to 'primary_category'
-      description,
-      start,
-      end,
-    });
-  } else {
-    onSubmit({
-      title,
-      primary_category: category, // change this from 'category' to 'primary_category'
-      description,
-      start,
-      end,
-    });
-  }
-  onHide();
-};
- 
+  const handleSubmit = () => {
+    if (selectedEvent) {
+      onUpdate({
+        id: selectedEvent.id,
+        title,
+        primary_category: category,
+        description,
+        start,
+        end,
+      });
+    } else {
+      onSubmit({
+        title,
+        primary_category: category,
+        description,
+        start,
+        end,
+      });
+    }
+    onHide();
+  };
+
 
   const handleDelete = () => {
     if (selectedEvent) {
@@ -86,12 +86,14 @@ const handleSubmit = () => {
             >
               <option value="">Select category</option>
               {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.long_name}
+                <option key={cat.category} value={cat.category}>
+                  {cat.category}
                 </option>
               ))}
             </Form.Control>
           </Form.Group>
+
+
           <Form.Group controlId="eventDescription">
             <Form.Label>Description</Form.Label>
             <Form.Control
