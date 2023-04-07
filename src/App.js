@@ -13,7 +13,8 @@ function App() {
   const [events, setEvents] = useState([]);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState('');
+  const [clickedDate, setClickedDate] = useState('');
 
   useEffect(() => {
     fetch('/api/events')
@@ -28,7 +29,9 @@ function App() {
   };
 
   const handleDateClick = (info) => {
-    setSelectedEvent(null);
+    console.log("Clicked on date:", info.dateStr);
+    setSelectedEvent('');
+    setClickedDate(info.date);
     setShowEventFormModal(true);
   };
 
@@ -49,12 +52,17 @@ function App() {
 
     switch (category) {
       case "Milonga":
-        backgroundColor = "royalblue";
+        backgroundColor = "brightblue";
         textColor = "white";
         fontWeight = "bold";
         break;
       case "Practica":
         backgroundColor = "cyan";
+        textColor = "black";
+        fontWeight = "bold";
+        break;
+      case "Workshop":
+        backgroundColor = "lightgreen";
         textColor = "black";
         fontWeight = "bold";
         break;
@@ -73,7 +81,9 @@ function App() {
         break;
       default:
         backgroundColor = "white";
-        textColor = "black";
+        textColor = "lightgrey";
+        fontStyle = "italic";
+        fontSize = "smaller";
     }
 
     return (
@@ -83,27 +93,13 @@ function App() {
     );
   };
 
-
   const defaultValues = {
-    secondary_category: "",
-    tri_category: "",
-    organizer: "",
-    location: "",
+    secondary_category: "default",
+    tri_category: "default",
+    organizer: "TPB",
+    location: "Near Boston",
     recurrence_rule: "",
-    owner_organizerId: "",
-  };
-
-  const handleEventFormPost = async (eventData) => {
-    const response = await fetch("/api/events", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...eventData, ...defaultValues, primary_category: eventData.category }),
-    });
-
-    const createdEvent = await response.json();
-    setEvents([...events, createdEvent]);
+    owner_organizerId: "4",
   };
 
   const handleEventClick = (info) => {
@@ -111,19 +107,60 @@ function App() {
     setShowEventFormModal(true);
   };
 
-  const handleEventFormPut = async (updatedEvent) => {
-    const response = await fetch(`/api/events/${updatedEvent.id}`, {
-      method: "PUT",
+  const handleEventFormPost = async (eventData) => {
+    console.log("Post eventData:", eventData);
+    const response = await fetch("/api/events", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ...updatedEvent, primary_category: updatedEvent.category }),
+      body: JSON.stringify({
+        ...eventData, ...defaultValues,
+        category: eventData.category,
+        secondary_category: eventData.secondary_category,
+        tri_category: eventData.tri_category,
+        organizer: eventData.organizer,
+        location: eventData.location,
+        recurrence_rule: eventData.recurrence_rule,
+        owner_organizerId: eventData.owner_organizerId,
+      }),
     });
 
-    const updatedEventData = await response.json();
-    setEvents(
-      events.map((event) => (event.id === updatedEventData.id ? updatedEventData : event))
-    );
+    const createdEvent = await response.json();
+    setEvents([...events, createdEvent]);
+  };
+
+  const handleEventFormPut = async (updatedEvent) => {
+    console.log("PUT eventData:", updatedEvent);
+    const { id, ...eventData } = updatedEvent;
+
+    try {
+      const response = await fetch(`/api/events/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...eventData,
+          ...defaultValues,
+          category: eventData.primary_category,
+          secondary_category: eventData.secondary_category,
+          tri_category: eventData.tri_category,
+          organizer: eventData.organizer,
+          location: eventData.location,
+          recurrence_rule: eventData.recurrence_rule,
+          owner_organizerId: eventData.owner_organizerId,
+        }),
+      });
+
+      const updatedEventData = await response.json();
+      setEvents(
+        events.map((event) => (event.id === updatedEventData.id ? updatedEventData : event))
+      );
+      setClickedDate('');
+    } catch (error) {
+      console.error("Error while updating event:", error);
+    }
   };
 
   const handleOrganizersButtonClick = () => {
@@ -148,6 +185,7 @@ function App() {
         onDelete={handleDeleteEvent}
         selectedEvent={selectedEvent}
         categories={categories}
+        clickedDate={clickedDate}
       />
 
       <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
@@ -171,7 +209,6 @@ function App() {
         eventContent={renderEventContent}
       />
     </div>
-
   );
 }
 

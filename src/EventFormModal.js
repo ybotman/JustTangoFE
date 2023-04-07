@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-//import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import { formatDate } from './Utils';
 
 const EventFormModal = ({
   show,
@@ -10,6 +10,7 @@ const EventFormModal = ({
   onDelete,
   selectedEvent,
   categories,
+  clickedDate,
 }) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
@@ -22,8 +23,12 @@ const EventFormModal = ({
       setTitle(selectedEvent.title);
       setCategory(selectedEvent.extendedProps.primary_category);
       setDescription(selectedEvent.extendedProps.description);
-      setStart(selectedEvent.start.toISOString());
-      setEnd(selectedEvent.end?.toISOString() || '');
+      setStart(formatDate(new Date(selectedEvent.start)));
+      setEnd(selectedEvent.end ? formatDate(new Date(selectedEvent.end)) : '');
+
+      //setStart(new Date(selectedEvent.start).toISOString());
+      //setEnd(selectedEvent.end ? new Date(selectedEvent.end).toISOString() : '');
+
     } else {
       setTitle('');
       setCategory('');
@@ -57,7 +62,6 @@ const EventFormModal = ({
     onHide();
   };
 
-
   const handleDelete = () => {
     if (selectedEvent) {
       onDelete(selectedEvent.id);
@@ -89,7 +93,7 @@ const EventFormModal = ({
             <Form.Label>Category</Form.Label>
             <Form.Control
               as="select"
-              value={category}
+              value={category || ''}
               onChange={(e) => setCategory(e.target.value)}
             >
               <option value="">Select category</option>
