@@ -49,6 +49,10 @@ function App() {
     let fontStyle;
     let fontWeight;
     let fontSize;
+    let borderWidth;
+    let borderStyle;
+    let borderColor;
+
 
     switch (category) {
       case "Milonga":
@@ -65,6 +69,14 @@ function App() {
         backgroundColor = "lightgreen";
         textColor = "black";
         fontWeight = "bold";
+        break;
+      case "Festival":
+        backgroundColor = "LimeGreen";
+        textColor = "black";
+        fontWeight = "bold";
+        borderWidth = "2px";
+        borderStyle = 'solid';
+        borderColor = 'Black';
         break;
       case "Class":
         backgroundColor = "white";
@@ -87,7 +99,7 @@ function App() {
     }
 
     return (
-      <div style={{ backgroundColor, color: textColor, fontStyle, fontWeight, fontSize }}>
+      <div style={{ backgroundColor, color: textColor, fontStyle, fontWeight, fontSize, borderWidth, borderStyle, borderColor }}>
         {eventInfo.event.title}
       </div>
     );
