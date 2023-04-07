@@ -7,6 +7,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import LoginModal from './LoginModal';
 import EventFormModal from "./EventFormModal";
 import './customStyles.css';
+import './calendarStyles.css';
 import './App.css';
 
 function App() {
