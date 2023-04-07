@@ -6,6 +6,7 @@ import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import LoginModal from './LoginModal';
 import EventFormModal from "./EventFormModal";
+import './customStyles.css';
 import './App.css';
 
 function App() {
@@ -76,7 +77,7 @@ function App() {
         fontWeight = "bold";
         borderWidth = "2px";
         borderStyle = 'solid';
-        borderColor = 'Black';
+        borderColor = 'Yellow';
         break;
       case "Class":
         backgroundColor = "white";
@@ -189,39 +190,42 @@ function App() {
 
   return (
     <div className="App">
-      <EventFormModal
-        show={showEventFormModal}
-        onHide={() => setShowEventFormModal(false)}
-        onPost={handleEventFormPost}
-        onPut={handleEventFormPut}
-        onDelete={handleDeleteEvent}
-        selectedEvent={selectedEvent}
-        categories={categories}
-        clickedDate={clickedDate}
-      />
+      <div className="app-content">
+        <EventFormModal
+          show={showEventFormModal}
+          onHide={() => setShowEventFormModal(false)}
+          onPost={handleEventFormPost}
+          onPut={handleEventFormPut}
+          onDelete={handleDeleteEvent}
+          selectedEvent={selectedEvent}
+          categories={categories}
+          clickedDate={clickedDate}
+        />
 
-      <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
-        dateClick={handleDateClick}
-        eventClick={handleEventClick}
-        events={events}
-        headerToolbar={{
-          left: 'prev,next today organizersButton',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,listWeek',
-        }}
-        customButtons={{
-          organizersButton: {
-            text: 'Organizers',
-            click: handleOrganizersButtonClick,
-          },
-        }}
-        eventContent={renderEventContent}
-      />
+        <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          dateClick={handleDateClick}
+          eventClick={handleEventClick}
+          events={events}
+          headerToolbar={{
+            left: 'prev,next today organizersButton',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek',
+          }}
+          customButtons={{
+            organizersButton: {
+              text: 'Organizers',
+              click: handleOrganizersButtonClick,
+            },
+          }}
+          eventContent={renderEventContent}
+        />
+      </div>
     </div>
   );
+
 }
 
 export default App;

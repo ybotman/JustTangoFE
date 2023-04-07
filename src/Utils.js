@@ -9,3 +9,30 @@ export function formatDate(dateString) {
 
     return `${year}-${month}-${day}T${hour}:${minute}`;
 }
+
+export const isValidDates = (start, end, category) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    if (endDate <= startDate) {
+        alert('End date must be greater than start date');
+        return false;
+    }
+
+    const maxEndDate = new Date(startDate);
+    if (category === 'Festival' || category === 'Workshop') {
+        maxEndDate.setDate(maxEndDate.getDate() + 1);
+        maxEndDate.setHours(3);
+        maxEndDate.setMinutes(0);
+    } else {
+        maxEndDate.setHours(maxEndDate.getHours() + 27);
+        maxEndDate.setMinutes(0);
+    }
+
+    if (endDate > maxEndDate) {
+        alert('End date cannot be beyond 3 AM the next day, unless it is a Festival or Workshop');
+        return false;
+    }
+
+    return true;
+};

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+//import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { formatDate } from './Utils';
+import { formatDate, isValidDates } from './Utils';
 
 const EventFormModal = ({
   show,
@@ -39,6 +40,10 @@ const EventFormModal = ({
   }, [selectedEvent]);
 
   const handleSubmit = () => {
+    if (!isValidDates(start, end, category)) {
+      return;
+    }
+
     if (selectedEvent) {
       console.log("PUT request event with title category:", title, category);
       onPut({
@@ -61,6 +66,7 @@ const EventFormModal = ({
     }
     onHide();
   };
+
 
   const handleDelete = () => {
     if (selectedEvent) {
