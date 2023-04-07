@@ -1,0 +1,10 @@
+.fc-daygrid-day-number {
+    display: block;
+    margin: 0 auto;
+    //background-color: Lightgray;
+    border-radius: 70%;
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+}
