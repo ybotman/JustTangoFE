@@ -6,6 +6,8 @@ import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import LoginModal from './LoginModal';
 import EventFormModal from "./EventFormModal";
+import CategoryFilterSwitches from './CategoryFilterSwitches';
+//import { Switch, FormControlLabel } from '@mui/material';
 import './customStyles.css';
 import './calendarStyles.css';
 import './App.css';
@@ -17,6 +19,7 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
+  const [activeFilters, setActiveFilters] = useState({});
 
   useEffect(() => {
     fetch('/api/events')
@@ -36,6 +39,15 @@ function App() {
     setClickedDate(info.date);
     setShowEventFormModal(true);
   };
+
+  const handleFilterChange = (category, isActive) => {
+    setActiveFilters((prevFilters) => ({ ...prevFilters, [category]: isActive }));
+  };
+
+  useEffect(() => {
+    console.log("Active Filters:", activeFilters);
+  }, [activeFilters]);
+
 
   const fetchCategories = async () => {
     const response = await fetch('/api/categories');
@@ -204,6 +216,13 @@ function App() {
         />
 
         <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
+
+        <CategoryFilterSwitches
+          categories={categories}
+          activeFilters={activeFilters}
+          handleFilterChange={handleFilterChange}
+        />
+
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
           initialView="dayGridMonth"
@@ -221,11 +240,19 @@ function App() {
               click: handleOrganizersButtonClick,
             },
           }}
-          eventContent={renderEventContent}
+          eventContent={({ event, el }) => {
+            const category = event.extendedProps.primary_category;
+            if (activeFilters[category] || Object.keys(activeFilters).every((key) => !activeFilters[key])) {
+              return renderEventContent({ event });
+            } else {
+              return null;
+            }
+          }}
         />
       </div>
     </div>
   );
+
 
 }
 

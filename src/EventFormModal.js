@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-//import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
-import { Modal, Button, Form } from 'react-bootstrap';
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions, Button,
+  TextField, FormControl, InputLabel, Select, MenuItem, Typography,
+} from '@mui/material';
+
 import { formatDate, isValidDates } from './Utils';
 
 const EventFormModal = ({
@@ -76,83 +79,80 @@ const EventFormModal = ({
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="lg">
-      <Modal.Header closeButton>
-        <Modal.Title>{selectedEvent ? 'Edit Event' : 'Create Event'}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
+    <Dialog open={show} onClose={onHide} maxWidth="md" fullWidth>
+      <DialogTitle>{selectedEvent ? 'Edit Event' : 'Create Event'}</DialogTitle>
+      <DialogContent>
         {selectedEvent && (
-          <Form.Text className="text-muted small">
+          <Typography variant="caption" color="textSecondary">
             Event ID: {selectedEvent.id}
-          </Form.Text>
+          </Typography>
         )}
-        <Form>
-          <Form.Group controlId="eventTitle">
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </Form.Group>
-          <Form.Group controlId="eventCategory">
-            <Form.Label>Category</Form.Label>
-            <Form.Control
-              as="select"
-              value={category || ''}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="">Select category</option>
-              {categories.map((cat) => (
-                <option key={cat.category} value={cat.category}>
-                  {cat.category}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
 
-
-          <Form.Group controlId="eventDescription">
-            <Form.Label>Description</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </Form.Group>
-          <Form.Group controlId="eventStart">
-            <Form.Label>Start</Form.Label>
-            <Form.Control
-              type="datetime-local"
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
-            />
-          </Form.Group>
-          <Form.Group controlId="eventEnd">
-            <Form.Label>End</Form.Label>
-            <Form.Control
-              type="datetime-local"
-              value={end}
-              onChange={(e) => setEnd(e.target.value)}
-            />
-          </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </FormControl>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Category</InputLabel>
+          <Select
+            value={category || ''}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <MenuItem value="">
+              <em>Select category</em>
+            </MenuItem>
+            {categories.map((cat) => (
+              <MenuItem key={cat.category} value={cat.category}>
+                {cat.category}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="Description"
+            multiline
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </FormControl>
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="Start"
+            type="datetime-local"
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+        </FormControl>
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="End"
+            type="datetime-local"
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+        </FormControl>
+      </DialogContent>
+      <DialogActions>
         {selectedEvent && (
-          <Button variant="danger" onClick={handleDelete}>
+          <Button variant="contained" color="error" onClick={handleDelete}>
             Delete
           </Button>
         )}
-        <Button variant="secondary" onClick={onHide}>
+        <Button variant="outlined" onClick={onHide}>
           Close
         </Button>
-        <Button variant="primary" onClick={handleSubmit}>
-          {selectedEvent ? "Update Event" : "Create Event"}
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
+          {selectedEvent ? 'Update Event' : 'Create Event'}
         </Button>
-      </Modal.Footer>
-    </Modal>
+      </DialogActions>
+    </Dialog>
   );
 };
 
