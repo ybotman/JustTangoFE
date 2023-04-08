@@ -30,9 +30,6 @@ const EventFormModal = ({
       setStart(formatDate(new Date(selectedEvent.start)));
       setEnd(selectedEvent.end ? formatDate(new Date(selectedEvent.end)) : '');
 
-      //setStart(new Date(selectedEvent.start).toISOString());
-      //setEnd(selectedEvent.end ? new Date(selectedEvent.end).toISOString() : '');
-
     } else {
       setTitle('');
       setCategory('');

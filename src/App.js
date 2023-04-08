@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -7,10 +8,10 @@ import interactionPlugin from '@fullcalendar/interaction';
 import LoginModal from './LoginModal';
 import EventFormModal from "./EventFormModal";
 import CategoryFilterSwitches from './CategoryFilterSwitches';
-//import { Switch, FormControlLabel } from '@mui/material';
 import './customStyles.css';
 import './calendarStyles.css';
 import './App.css';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -19,7 +20,18 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
-  const [activeFilters, setActiveFilters] = useState({});
+  const [activeFilters, setActiveFilters] = useState({
+    Milonga: true,
+    Practica: true,
+    Workshop: true,
+  });
+  const calendarRef = useRef(null);
+
+  useEffect(() => {
+    if (calendarRef.current) {
+      calendarRef.current.getApi().render();
+    }
+  }, [activeFilters]);
 
   useEffect(() => {
     fetch('/api/events')
@@ -55,65 +67,58 @@ function App() {
     setCategories(data);
   };
 
+  const customTheme = createTheme({
+    components: {
+      MuiSwitch: {
+        styleOverrides: {
+          root: {
+            width: '40px',
+            height: '24px',
+            padding: '4px',
+          },
+          switchBase: {
+            padding: '4px',
+          },
+          thumb: {
+            width: '16px',
+            height: '16px',
+          },
+          track: {
+            borderRadius: '20px',
+            opacity: 1,
+          },
+        },
+      },
+      MuiFormControlLabel: {
+        styleOverrides: {
+          label: {
+            fontSize: '0.8rem',
+          },
+        },
+      },
+    },
+  });
+
   const renderEventContent = (eventInfo) => {
     const category = eventInfo.event.extendedProps.primary_category;
 
-    let backgroundColor;
-    let textColor;
-    let fontStyle;
-    let fontWeight;
-    let fontSize;
-    let borderWidth;
-    let borderStyle;
-    let borderColor;
-
+    let backgroundColor, textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
 
     switch (category) {
-      case "Milonga":
-        backgroundColor = "brightblue";
-        textColor = "white";
-        fontWeight = "bold";
-        break;
-      case "Practica":
-        backgroundColor = "cyan";
-        textColor = "black";
-        fontWeight = "bold";
-        break;
-      case "Workshop":
-        backgroundColor = "lightgreen";
-        textColor = "black";
-        fontWeight = "bold";
-        break;
-      case "Festival":
-        backgroundColor = "LimeGreen";
-        textColor = "black";
-        fontWeight = "bold";
-        borderWidth = "2px";
-        borderStyle = 'solid';
-        borderColor = 'Yellow';
-        break;
-      case "Class":
-        backgroundColor = "white";
-        textColor = "black";
-        fontWeight = "normal";
-        fontSize = "smaller";
-        break;
-      case "Beginner":
-        backgroundColor = "white";
-        textColor = "grey";
-        fontStyle = "italic";
-        fontWeight = "normal";
-        fontSize = "smaller";
-        break;
-      default:
-        backgroundColor = "white";
-        textColor = "lightgrey";
-        fontStyle = "italic";
-        fontSize = "smaller";
+      case "Milonga": backgroundColor = "brightblue"; textColor = "white"; fontWeight = "bold"; fontSize = "smaller"; break;
+      case "Practica": backgroundColor = "cyan"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
+      case "Workshop": backgroundColor = "lightgreen"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
+      case "Festival": backgroundColor = "LimeGreen"; textColor = "black"; fontWeight = "bold"; borderWidth = "2px"; borderStyle = 'solid'; fontSize = "smaller"; borderColor = 'Yellow'; break;
+      case "Class": backgroundColor = "white"; textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; break;
+      case "Beginner": backgroundColor = "white"; textColor = "grey"; fontStyle = "italic"; fontWeight = "normal"; fontSize = "smaller"; break;
+      default: backgroundColor = "white"; textColor = "lightgrey"; fontStyle = "italic"; fontSize = "smaller";
     }
 
     return (
-      <div style={{ backgroundColor, color: textColor, fontStyle, fontWeight, fontSize, borderWidth, borderStyle, borderColor }}>
+      <div style={{
+        backgroundColor, color: textColor, fontStyle, fontWeight,
+        fontSize, borderWidth, borderStyle, borderColor
+      }}>
         {eventInfo.event.title}
       </div>
     );
@@ -202,57 +207,57 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <div className="app-content">
-        <EventFormModal
-          show={showEventFormModal}
-          onHide={() => setShowEventFormModal(false)}
-          onPost={handleEventFormPost}
-          onPut={handleEventFormPut}
-          onDelete={handleDeleteEvent}
-          selectedEvent={selectedEvent}
-          categories={categories}
-          clickedDate={clickedDate}
-        />
+    <ThemeProvider theme={customTheme}>
+      <div className="App">
+        <div className="app-content">
+          <EventFormModal
+            show={showEventFormModal}
+            onHide={() => setShowEventFormModal(false)}
+            onPost={handleEventFormPost}
+            onPut={handleEventFormPut}
+            onDelete={handleDeleteEvent}
+            selectedEvent={selectedEvent}
+            categories={categories}
+            clickedDate={clickedDate}
+          />
 
-        <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
+          <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
 
-        <CategoryFilterSwitches
-          categories={categories}
-          activeFilters={activeFilters}
-          handleFilterChange={handleFilterChange}
-        />
+          <CategoryFilterSwitches
+            categories={categories}
+            activeFilters={activeFilters}
+            handleFilterChange={handleFilterChange}
+          />
 
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          dateClick={handleDateClick}
-          eventClick={handleEventClick}
-          events={events}
-          headerToolbar={{
-            left: 'prev,next today organizersButton',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,listWeek',
-          }}
-          customButtons={{
-            organizersButton: {
-              text: 'Organizers',
-              click: handleOrganizersButtonClick,
-            },
-          }}
-          eventContent={({ event, el }) => {
-            const category = event.extendedProps.primary_category;
-            if (activeFilters[category] || Object.keys(activeFilters).every((key) => !activeFilters[key])) {
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            dateClick={handleDateClick}
+            eventClick={handleEventClick}
+            events={events.filter((event) => {
+              const category = event.extendedProps.primary_category;
+              return activeFilters[category] === undefined || activeFilters[category];
+            })}
+            headerToolbar={{
+              left: 'prev,next today organizersButton',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,listWeek',
+            }}
+            customButtons={{
+              organizersButton: {
+                text: 'Organizers',
+                click: handleOrganizersButtonClick,
+              },
+            }}
+            eventContent={({ event, el }) => {
               return renderEventContent({ event });
-            } else {
-              return null;
-            }
-          }}
-        />
-      </div>
-    </div>
+            }}
+          />
+        </div>
+      </div>pnm
+    </ThemeProvider>
   );
-
 
 }
 
