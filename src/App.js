@@ -8,6 +8,9 @@ import interactionPlugin from '@fullcalendar/interaction';
 import LoginModal from './LoginModal';
 import EventFormModal from "./EventFormModal";
 import CategoryFilterSwitches from './CategoryFilterSwitches';
+import { Switch, FormControlLabel, Box } from '@mui/material';
+import ListIcon from '@mui/icons-material/List';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import './customStyles.css';
 import './calendarStyles.css';
 import './App.css';
@@ -21,6 +24,7 @@ function App() {
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, });
+  const [isListView, setIsListView] = useState(false);
   const calendarRef = useRef(null);
 
   useEffect(() => {
@@ -38,12 +42,11 @@ function App() {
     fetchCategories();
   }, []);
 
-  // remove this ugly code: 
-  useEffect(() => {
-    if (calendarRef.current) {
-      calendarRef.current.getApi().render();
-    }
-  }, [activeFilters]);
+  const handleViewSwitchChange = (event) => {
+    setIsListView(event.target.checked);
+    const newView = event.target.checked ? 'listWeek' : 'dayGridMonth';
+    calendarRef.current.getApi().changeView(newView);
+  };
 
   const toggleLoginModal = () => {
     setShowLoginModal(!showLoginModal);
@@ -224,7 +227,22 @@ function App() {
             activeFilters={activeFilters}
             handleFilterChange={handleFilterChange}
           />
-
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <CalendarTodayIcon />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isListView}
+                  onChange={handleViewSwitchChange}
+                  name="viewSwitch"
+                  inputProps={{ 'aria-label': 'change view' }}
+                />
+              }
+              label=""
+              sx={{ margin: 0 }}
+            />
+            <ListIcon />
+          </Box>
           <FullCalendar
             nextDayThreshold='05:59:00'
             ref={calendarRef}
@@ -246,8 +264,6 @@ function App() {
 
             headerToolbar={{
               left: 'prev,next today organizersButton',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,listWeek',
             }}
             customButtons={{
               organizersButton: {
