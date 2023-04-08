@@ -20,11 +20,7 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
-  const [activeFilters, setActiveFilters] = useState({
-    Milonga: true,
-    Practica: true,
-    Workshop: true,
-  });
+  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, });
   const calendarRef = useRef(null);
 
   useEffect(() => {
@@ -33,6 +29,7 @@ function App() {
     }
   }, [activeFilters]);
 
+
   useEffect(() => {
     fetch('/api/events')
       .then((response) => response.json())
@@ -40,6 +37,13 @@ function App() {
 
     fetchCategories();
   }, []);
+
+  // remove this ugly code: 
+  useEffect(() => {
+    if (calendarRef.current) {
+      calendarRef.current.getApi().render();
+    }
+  }, [activeFilters]);
 
   const toggleLoginModal = () => {
     setShowLoginModal(!showLoginModal);
@@ -52,8 +56,15 @@ function App() {
     setShowEventFormModal(true);
   };
 
-  const handleFilterChange = (category, isActive) => {
-    setActiveFilters((prevFilters) => ({ ...prevFilters, [category]: isActive }));
+  const handleFilterChange = (category, checked) => {
+    setActiveFilters((prevFilters) => {
+      const updatedFilters = {
+        ...prevFilters,
+        [category]: checked,
+      };
+      console.log('Updated filters:', updatedFilters);
+      return updatedFilters;
+    });
   };
 
   useEffect(() => {
@@ -71,22 +82,10 @@ function App() {
     components: {
       MuiSwitch: {
         styleOverrides: {
-          root: {
-            width: '40px',
-            height: '24px',
-            padding: '4px',
-          },
-          switchBase: {
-            padding: '4px',
-          },
-          thumb: {
-            width: '16px',
-            height: '16px',
-          },
-          track: {
-            borderRadius: '20px',
-            opacity: 1,
-          },
+          root: { width: '40px', height: '24px', padding: '4px', },
+          switchBase: { padding: '4px', },
+          thumb: { width: '16px', height: '16px', },
+          track: { borderRadius: '20px', opacity: 1, },
         },
       },
       MuiFormControlLabel: {
@@ -105,7 +104,6 @@ function App() {
     let backgroundColor, textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
 
     switch (category) {
-      case "Milonga": backgroundColor = "brightblue"; textColor = "white"; fontWeight = "bold"; fontSize = "smaller"; break;
       case "Practica": backgroundColor = "cyan"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
       case "Workshop": backgroundColor = "lightgreen"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
       case "Festival": backgroundColor = "LimeGreen"; textColor = "black"; fontWeight = "bold"; borderWidth = "2px"; borderStyle = 'solid'; fontSize = "smaller"; borderColor = 'Yellow'; break;
@@ -220,9 +218,7 @@ function App() {
             categories={categories}
             clickedDate={clickedDate}
           />
-
           <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
-
           <CategoryFilterSwitches
             categories={categories}
             activeFilters={activeFilters}
@@ -230,15 +226,24 @@ function App() {
           />
 
           <FullCalendar
+            nextDayThreshold='05:59:00'
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             dateClick={handleDateClick}
             eventClick={handleEventClick}
-            events={events.filter((event) => {
-              const category = event.extendedProps.primary_category;
-              return activeFilters[category] === undefined || activeFilters[category];
-            })}
+            /*          events={events.filter((event) => {
+                        if (event.extendedProps) {
+                          const category = event.extendedProps.primary_category;
+                          return activeFilters[category] === undefined || activeFilters[category] === true;
+                        }
+                        return true;
+                      })}
+          */
+
+            //           events={filteredEvents}
+            events={events}
+
             headerToolbar={{
               left: 'prev,next today organizersButton',
               center: 'title',
@@ -255,7 +260,7 @@ function App() {
             }}
           />
         </div>
-      </div>pnm
+      </div>
     </ThemeProvider>
   );
 
