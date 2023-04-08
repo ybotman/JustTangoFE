@@ -14,6 +14,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import CalendarViewMonth from '@mui/icons-material/CalendarViewMonth';
 import EditCalendar from '@mui/icons-material/EditCalendar';
 import TodayIcon from '@mui/icons-material/Today';
+
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import './customStyles.css';
@@ -36,7 +37,8 @@ function App() {
     if (calendarRef.current) {
       calendarRef.current.getApi().render();
     }
-  }, [activeFilters]);
+  }, [activeFilters]
+  );
 
 
   useEffect(() => {
@@ -85,7 +87,9 @@ function App() {
       console.log('Updated filters:', updatedFilters);
       return updatedFilters;
     });
+
   };
+
   //  event form code
   const handleEventFormPost = async (eventData) => {
     console.log("Post eventData:", eventData);
@@ -241,38 +245,42 @@ function App() {
             clickedDate={clickedDate}
           />
           <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
-          <CategoryFilterSwitches
-            categories={categories}
-            activeFilters={activeFilters}
-            handleFilterChange={handleFilterChange}
-          />
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handlePrevButtonClick} aria-label="previous">
-              <NavigateBeforeIcon />
-            </IconButton>
-            <IconButton onClick={handleTodayButtonClick} aria-label="Today">
-              <TodayIcon />
-            </IconButton>
-            <IconButton onClick={handleNextButtonClick} aria-label="next">
-              <NavigateNextIcon />
-            </IconButton>
-            <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
-              <EditCalendar />
-            </IconButton>
-            <CalendarViewMonth />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={isListView}
-                  onChange={handleViewSwitchChange}
-                  name="viewSwitch"
-                  inputProps={{ 'aria-label': 'change view' }}
-                />
-              }
-              label=""
-              sx={{ margin: 0 }}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <Box>
+              <IconButton onClick={handlePrevButtonClick} aria-label="previous">
+                <NavigateBeforeIcon />
+              </IconButton>
+              <IconButton onClick={handleTodayButtonClick} aria-label="Today">
+                <TodayIcon />
+              </IconButton>
+              <IconButton onClick={handleNextButtonClick} aria-label="next">
+                <NavigateNextIcon />
+              </IconButton>
+            </Box>
+            <CategoryFilterSwitches
+              categories={categories}
+              activeFilters={activeFilters}
+              handleFilterChange={handleFilterChange}
             />
-            <ListIcon />
+            <Box>
+              <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
+                <EditCalendar />
+              </IconButton>
+              <CalendarViewMonth />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isListView}
+                    onChange={handleViewSwitchChange}
+                    name="viewSwitch"
+                    inputProps={{ 'aria-label': 'change view' }}
+                  />
+                }
+                label=""
+                sx={{ margin: 0 }}
+              />
+              <ListIcon />
+            </Box>
           </Box>
 
           <FullCalendar
