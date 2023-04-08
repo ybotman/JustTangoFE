@@ -1,20 +1,25 @@
-import { useRef } from 'react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import LoginModal from './LoginModal';
-import EventFormModal from "./EventFormModal";
 import CategoryFilterSwitches from './CategoryFilterSwitches';
-import { Switch, FormControlLabel, Box } from '@mui/material';
+import LoginModal from './LoginModal';
+import EventFormModal from './EventFormModal';
+import { Switch, FormControlLabel, Box, IconButton, } from '@mui/material';
 import ListIcon from '@mui/icons-material/List';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import CalendarViewMonth from '@mui/icons-material/CalendarViewMonth';
+import EditCalendar from '@mui/icons-material/EditCalendar';
+import TodayIcon from '@mui/icons-material/Today';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
 import './customStyles.css';
 import './calendarStyles.css';
 import './App.css';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+
 
 function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -59,6 +64,18 @@ function App() {
     setShowEventFormModal(true);
   };
 
+  const handlePrevButtonClick = () => {
+    calendarRef.current.getApi().prev();
+  };
+
+  const handleTodayButtonClick = () => {
+    calendarRef.current.getApi().today();
+  };
+
+  const handleNextButtonClick = () => {
+    calendarRef.current.getApi().next();
+  };
+
   const handleFilterChange = (category, checked) => {
     setActiveFilters((prevFilters) => {
       const updatedFilters = {
@@ -68,6 +85,70 @@ function App() {
       console.log('Updated filters:', updatedFilters);
       return updatedFilters;
     });
+  };
+  //  event form code
+  const handleEventFormPost = async (eventData) => {
+    console.log("Post eventData:", eventData);
+    const response = await fetch("/api/events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...eventData, ...defaultValues,
+        category: eventData.category,
+        secondary_category: eventData.secondary_category,
+        tri_category: eventData.tri_category,
+        organizer: eventData.organizer,
+        location: eventData.location,
+        recurrence_rule: eventData.recurrence_rule,
+        owner_organizerId: eventData.owner_organizerId,
+      }),
+    });
+
+    const createdEvent = await response.json();
+    setEvents([...events, createdEvent]);
+  };
+
+  const handleEventFormPut = async (updatedEvent) => {
+    console.log("PUT eventData:", updatedEvent);
+    const { id, ...eventData } = updatedEvent;
+
+    try {
+      const response = await fetch(`/api/events/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...eventData,
+          ...defaultValues,
+          category: eventData.primary_category,
+          secondary_category: eventData.secondary_category,
+          tri_category: eventData.tri_category,
+          organizer: eventData.organizer,
+          location: eventData.location,
+          recurrence_rule: eventData.recurrence_rule,
+          owner_organizerId: eventData.owner_organizerId,
+        }),
+      });
+
+      const updatedEventData = await response.json();
+      setEvents(
+        events.map((event) => (event.id === updatedEventData.id ? updatedEventData : event))
+      );
+      setClickedDate('');
+    } catch (error) {
+      console.error("Error while updating event:", error);
+    }
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    await fetch(`/api/events/${eventId}`, {
+      method: "DELETE",
+    });
+
+    setEvents(events.filter((event) => event.id !== eventId));
   };
 
   useEffect(() => {
@@ -139,73 +220,11 @@ function App() {
     setShowEventFormModal(true);
   };
 
-  const handleEventFormPost = async (eventData) => {
-    console.log("Post eventData:", eventData);
-    const response = await fetch("/api/events", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...eventData, ...defaultValues,
-        category: eventData.category,
-        secondary_category: eventData.secondary_category,
-        tri_category: eventData.tri_category,
-        organizer: eventData.organizer,
-        location: eventData.location,
-        recurrence_rule: eventData.recurrence_rule,
-        owner_organizerId: eventData.owner_organizerId,
-      }),
-    });
-
-    const createdEvent = await response.json();
-    setEvents([...events, createdEvent]);
-  };
-
-  const handleEventFormPut = async (updatedEvent) => {
-    console.log("PUT eventData:", updatedEvent);
-    const { id, ...eventData } = updatedEvent;
-
-    try {
-      const response = await fetch(`/api/events/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...eventData,
-          ...defaultValues,
-          category: eventData.primary_category,
-          secondary_category: eventData.secondary_category,
-          tri_category: eventData.tri_category,
-          organizer: eventData.organizer,
-          location: eventData.location,
-          recurrence_rule: eventData.recurrence_rule,
-          owner_organizerId: eventData.owner_organizerId,
-        }),
-      });
-
-      const updatedEventData = await response.json();
-      setEvents(
-        events.map((event) => (event.id === updatedEventData.id ? updatedEventData : event))
-      );
-      setClickedDate('');
-    } catch (error) {
-      console.error("Error while updating event:", error);
-    }
-  };
 
   const handleOrganizersButtonClick = () => {
     toggleLoginModal();
   };
 
-  const handleDeleteEvent = async (eventId) => {
-    await fetch(`/api/events/${eventId}`, {
-      method: "DELETE",
-    });
-
-    setEvents(events.filter((event) => event.id !== eventId));
-  };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -228,7 +247,19 @@ function App() {
             handleFilterChange={handleFilterChange}
           />
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <CalendarTodayIcon />
+            <IconButton onClick={handlePrevButtonClick} aria-label="previous">
+              <NavigateBeforeIcon />
+            </IconButton>
+            <IconButton onClick={handleTodayButtonClick} aria-label="Today">
+              <TodayIcon />
+            </IconButton>
+            <IconButton onClick={handleNextButtonClick} aria-label="next">
+              <NavigateNextIcon />
+            </IconButton>
+            <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
+              <EditCalendar />
+            </IconButton>
+            <CalendarViewMonth />
             <FormControlLabel
               control={
                 <Switch
@@ -243,7 +274,9 @@ function App() {
             />
             <ListIcon />
           </Box>
+
           <FullCalendar
+            headerToolbar={{ left: '', center: '', right: '', }}
             nextDayThreshold='05:59:00'
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
@@ -258,19 +291,8 @@ function App() {
                         return true;
                       })}
           */
-
             //           events={filteredEvents}
             events={events}
-
-            headerToolbar={{
-              left: 'prev,next today organizersButton',
-            }}
-            customButtons={{
-              organizersButton: {
-                text: 'Organizers',
-                click: handleOrganizersButtonClick,
-              },
-            }}
             eventContent={({ event, el }) => {
               return renderEventContent({ event });
             }}
