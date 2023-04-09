@@ -14,7 +14,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import CalendarViewMonth from '@mui/icons-material/CalendarViewMonth';
 import EditCalendar from '@mui/icons-material/EditCalendar';
 import TodayIcon from '@mui/icons-material/Today';
-
+import SettingsIcon from '@mui/icons-material/Settings';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import './customStyles.css';
@@ -246,6 +246,7 @@ function App() {
           />
           <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+
             <Box>
               <IconButton onClick={handlePrevButtonClick} aria-label="previous">
                 <NavigateBeforeIcon />
@@ -257,15 +258,26 @@ function App() {
                 <NavigateNextIcon />
               </IconButton>
             </Box>
-            <CategoryFilterSwitches
-              categories={categories}
-              activeFilters={activeFilters}
-              handleFilterChange={handleFilterChange}
-            />
+
             <Box>
+              <CategoryFilterSwitches
+                categories={categories}
+                activeFilters={activeFilters}
+                handleFilterChange={handleFilterChange}
+              />
+            </Box>
+
+            <Box>
+              <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
+                <SettingsIcon />
+              </IconButton>
+
               <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
                 <EditCalendar />
               </IconButton>
+            </Box>
+
+            <Box>
               <CalendarViewMonth />
               <FormControlLabel
                 control={
@@ -307,7 +319,7 @@ function App() {
           />
         </div>
       </div>
-    </ThemeProvider>
+    </ThemeProvider >
   );
 
 }
