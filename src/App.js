@@ -78,6 +78,7 @@ function App() {
     calendarRef.current.getApi().next();
   };
 
+
   const handleFilterChange = (category, checked) => {
     setActiveFilters((prevFilters) => {
       const updatedFilters = {
@@ -245,6 +246,7 @@ function App() {
             clickedDate={clickedDate}
           />
           <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
+
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
 
             <Box>
@@ -269,6 +271,7 @@ function App() {
 
             <Box>
               <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
+
                 <SettingsIcon />
               </IconButton>
 
