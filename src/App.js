@@ -1,28 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+//FullCalendar imports
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 
-import CategoryFilterSwitches from './CategoryFilterSwitches';
+//component imports
+import CalendarDateNavigation from './components/CalendarDateNavigation';
+import CategoryFilter from './components/CategoryFilter';
+import OrganizerFilter from './components/OrganizerFilter';
+import CalendarViewSwitch from './components/CalendarViewSwitch';
 
 import LoginModal from './LoginModal';
 import EventFormModal from './EventFormModal';
 
-import { Switch, FormControlLabel, Box, IconButton, } from '@mui/material';
-import ListIcon from '@mui/icons-material/List';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import CalendarViewMonth from '@mui/icons-material/CalendarViewMonth';
+//Material User Interfae (MUI) Imports
+import { Box, IconButton, } from '@mui/material';
 import EditCalendar from '@mui/icons-material/EditCalendar';
-import TodayIcon from '@mui/icons-material/Today';
 import SettingsIcon from '@mui/icons-material/Settings';
-import GroupIcon from '@mui/icons-material/Group';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { Accordion, AccordionSummary, AccordionDetails, Checkbox, } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import './customStyles.css';
 import './calendarStyles.css';
@@ -36,28 +34,16 @@ function App() {
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, });
-  const [isListView, setIsListView] = useState(false);
+  //const [isListView, setIsListView] = useState(false);
   const calendarRef = useRef(null);
   const [organizers, setOrganizers] = useState([]);
   const [selectedOrganizers, setSelectedOrganizers] = useState([]);
 
+  //const [view, setView] = React.useState('month');
 
-  useEffect(() => {
-    if (calendarRef.current) {
-      calendarRef.current.getApi().render();
-    }
-  }, [activeFilters]
-  );
-
-
-
-  useEffect(() => {
-    // Fetch organizers from API
-    fetch('/api/organizers')
-      .then((response) => response.json())
-      .then((data) => setOrganizers(data));
-    // ...
-  }, []);
+  const handleViewChange = (viewType) => {
+    calendarRef.current.getApi().changeView(viewType);
+  };
 
 
   const defaultValues = {
@@ -68,6 +54,22 @@ function App() {
     recurrence_rule: "",
     owner_organizerId: "4",
   };
+
+  useEffect(() => {
+    if (calendarRef.current) {
+      calendarRef.current.getApi().render();
+    }
+  }, [activeFilters]
+  );
+
+  useEffect(() => {
+    // Fetch organizers from API
+    fetch('/api/organizers')
+      .then((response) => response.json())
+      .then((data) => setOrganizers(data));
+    // ...
+  }, []);
+
 
   useEffect(() => {
     fetch('/api/events')
@@ -143,13 +145,13 @@ function App() {
 
     setEvents(events.filter((event) => event.id !== eventId));
   };
-
-  const handleViewSwitchChange = (event) => {
-    setIsListView(event.target.checked);
-    const newView = event.target.checked ? 'listWeek' : 'dayGridMonth';
-    calendarRef.current.getApi().changeView(newView);
-  };
-
+  /*
+    const handleViewSwitchChange = (event) => {
+      setIsListView(event.target.checked);
+      const newView = event.target.checked ? 'listWeek' : 'dayGridMonth';
+      calendarRef.current.getApi().changeView(newView);
+    };
+  */
   const toggleLoginModal = () => {
     setShowLoginModal(!showLoginModal);
   };
@@ -250,7 +252,6 @@ function App() {
     );
   };
 
-
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
     setShowEventFormModal(true);
@@ -279,79 +280,39 @@ function App() {
           <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-
             <Box>
-              <IconButton onClick={handlePrevButtonClick} aria-label="previous">
-                <NavigateBeforeIcon />
-              </IconButton>
-              <IconButton onClick={handleTodayButtonClick} aria-label="Today">
-                <TodayIcon />
-              </IconButton>
-              <IconButton onClick={handleNextButtonClick} aria-label="next">
-                <NavigateNextIcon />
-              </IconButton>
+              <CalendarDateNavigation
+                handlePrevButtonClick={handlePrevButtonClick}
+                handleTodayButtonClick={handleTodayButtonClick}
+                handleNextButtonClick={handleNextButtonClick}
+              />
             </Box>
 
             <Box>
-              <CategoryFilterSwitches
+              <CategoryFilter
                 categories={categories}
                 activeFilters={activeFilters}
                 handleFilterChange={handleFilterChange}
               />
             </Box>
             <Box>
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="organizers-filter-content"
-                  id="organizers-filter-header"
-                >
-                  <GroupIcon />
-                </AccordionSummary>
-                <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', width: 'fit-content' }}>
-                  {organizers.map((organizer) => (
-                    <FormControlLabel
-                      key={organizer.id}
-                      control={
-                        <Checkbox
-                          onChange={(event) =>
-                            handleOrganizerChange(organizer.id, event.target.checked)
-                          }
-                          name={`organizer-${organizer.id}`}
-                        />
-                      }
-                      label={organizer.name}
-                    />
-                  ))}
-                </AccordionDetails>
-              </Accordion>
+              <OrganizerFilter
+                organizers={organizers}
+                onOrganizerChange={handleOrganizerChange}
+              />
             </Box>
+
             <Box>
               <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
-
                 <SettingsIcon />
               </IconButton>
-
               <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
                 <EditCalendar />
               </IconButton>
             </Box>
-
             <Box>
-              <CalendarViewMonth />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={isListView}
-                    onChange={handleViewSwitchChange}
-                    name="viewSwitch"
-                    inputProps={{ 'aria-label': 'change view' }}
-                  />
-                }
-                label=""
-                sx={{ margin: 0 }}
-              />
-              <ListIcon />
+              <CalendarViewSwitch view={calendarRef.current?.getApi().view.type} onChange={handleViewChange} />
+
             </Box>
           </Box>
 
@@ -363,16 +324,6 @@ function App() {
             initialView="dayGridMonth"
             dateClick={handleDateClick}
             eventClick={handleEventClick}
-
-            /*          events={events.filter((event) => {
-                        if (event.extendedProps) {
-                          const category = event.extendedProps.primary_category;
-                          return activeFilters[category] === undefined || activeFilters[category] === true;
-                        }
-                        return true;
-                      })}
-          */
-            //           events={filteredEvents}
             events={events}
             eventContent={({ event, el }) => {
               return renderEventContent({ event });
