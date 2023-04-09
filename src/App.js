@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
+
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
+
 import CategoryFilterSwitches from './CategoryFilterSwitches';
+
 import LoginModal from './LoginModal';
 import EventFormModal from './EventFormModal';
+
 import { Switch, FormControlLabel, Box, IconButton, } from '@mui/material';
 import ListIcon from '@mui/icons-material/List';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
@@ -15,12 +19,14 @@ import CalendarViewMonth from '@mui/icons-material/CalendarViewMonth';
 import EditCalendar from '@mui/icons-material/EditCalendar';
 import TodayIcon from '@mui/icons-material/Today';
 import SettingsIcon from '@mui/icons-material/Settings';
+import GroupIcon from '@mui/icons-material/Group';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { Accordion, AccordionSummary, AccordionDetails, Checkbox, } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import './customStyles.css';
 import './calendarStyles.css';
 import './App.css';
-
 
 function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -32,6 +38,9 @@ function App() {
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, });
   const [isListView, setIsListView] = useState(false);
   const calendarRef = useRef(null);
+  const [organizers, setOrganizers] = useState([]);
+  const [selectedOrganizers, setSelectedOrganizers] = useState([]);
+
 
   useEffect(() => {
     if (calendarRef.current) {
@@ -41,57 +50,36 @@ function App() {
   );
 
 
+
+  useEffect(() => {
+    // Fetch organizers from API
+    fetch('/api/organizers')
+      .then((response) => response.json())
+      .then((data) => setOrganizers(data));
+    // ...
+  }, []);
+
+
+  const defaultValues = {
+    secondary_category: "default",
+    tri_category: "default",
+    organizer: "TPB",
+    location: "Near Boston",
+    recurrence_rule: "",
+    owner_organizerId: "4",
+  };
+
   useEffect(() => {
     fetch('/api/events')
       .then((response) => response.json())
       .then((data) => setEvents(data));
 
-    fetchCategories();
+    if (fetchCategories) {
+      fetchCategories();
+    }
   }, []);
 
-  const handleViewSwitchChange = (event) => {
-    setIsListView(event.target.checked);
-    const newView = event.target.checked ? 'listWeek' : 'dayGridMonth';
-    calendarRef.current.getApi().changeView(newView);
-  };
 
-  const toggleLoginModal = () => {
-    setShowLoginModal(!showLoginModal);
-  };
-
-  const handleDateClick = (info) => {
-    console.log("Clicked on date:", info.dateStr);
-    setSelectedEvent('');
-    setClickedDate(info.date);
-    setShowEventFormModal(true);
-  };
-
-  const handlePrevButtonClick = () => {
-    calendarRef.current.getApi().prev();
-  };
-
-  const handleTodayButtonClick = () => {
-    calendarRef.current.getApi().today();
-  };
-
-  const handleNextButtonClick = () => {
-    calendarRef.current.getApi().next();
-  };
-
-
-  const handleFilterChange = (category, checked) => {
-    setActiveFilters((prevFilters) => {
-      const updatedFilters = {
-        ...prevFilters,
-        [category]: checked,
-      };
-      console.log('Updated filters:', updatedFilters);
-      return updatedFilters;
-    });
-
-  };
-
-  //  event form code
   const handleEventFormPost = async (eventData) => {
     console.log("Post eventData:", eventData);
     const response = await fetch("/api/events", {
@@ -156,6 +144,57 @@ function App() {
     setEvents(events.filter((event) => event.id !== eventId));
   };
 
+  const handleViewSwitchChange = (event) => {
+    setIsListView(event.target.checked);
+    const newView = event.target.checked ? 'listWeek' : 'dayGridMonth';
+    calendarRef.current.getApi().changeView(newView);
+  };
+
+  const toggleLoginModal = () => {
+    setShowLoginModal(!showLoginModal);
+  };
+
+  const handleOrganizerChange = (event) => {
+    if (event.target.checked) {
+      setSelectedOrganizers([...selectedOrganizers, parseInt(event.target.value)]);
+    } else {
+      setSelectedOrganizers(selectedOrganizers.filter((id) => id !== parseInt(event.target.value)));
+    }
+  };
+
+
+  const handleDateClick = (info) => {
+    console.log("Clicked on date:", info.dateStr);
+    setSelectedEvent('');
+    setClickedDate(info.date);
+    setShowEventFormModal(true);
+  };
+
+  const handlePrevButtonClick = () => {
+    calendarRef.current.getApi().prev();
+  };
+
+  const handleTodayButtonClick = () => {
+    calendarRef.current.getApi().today();
+  };
+
+  const handleNextButtonClick = () => {
+    calendarRef.current.getApi().next();
+  };
+
+
+  const handleFilterChange = (category, checked) => {
+    setActiveFilters((prevFilters) => {
+      const updatedFilters = {
+        ...prevFilters,
+        [category]: checked,
+      };
+      console.log('Updated filters:', updatedFilters);
+      return updatedFilters;
+    });
+
+  };
+
   useEffect(() => {
     console.log("Active Filters:", activeFilters);
   }, [activeFilters]);
@@ -211,14 +250,6 @@ function App() {
     );
   };
 
-  const defaultValues = {
-    secondary_category: "default",
-    tri_category: "default",
-    organizer: "TPB",
-    location: "Near Boston",
-    recurrence_rule: "",
-    owner_organizerId: "4",
-  };
 
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
@@ -268,7 +299,33 @@ function App() {
                 handleFilterChange={handleFilterChange}
               />
             </Box>
-
+            <Box>
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="organizers-filter-content"
+                  id="organizers-filter-header"
+                >
+                  <GroupIcon />
+                </AccordionSummary>
+                <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', width: 'fit-content' }}>
+                  {organizers.map((organizer) => (
+                    <FormControlLabel
+                      key={organizer.id}
+                      control={
+                        <Checkbox
+                          onChange={(event) =>
+                            handleOrganizerChange(organizer.id, event.target.checked)
+                          }
+                          name={`organizer-${organizer.id}`}
+                        />
+                      }
+                      label={organizer.name}
+                    />
+                  ))}
+                </AccordionDetails>
+              </Accordion>
+            </Box>
             <Box>
               <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
 
@@ -306,6 +363,7 @@ function App() {
             initialView="dayGridMonth"
             dateClick={handleDateClick}
             eventClick={handleEventClick}
+
             /*          events={events.filter((event) => {
                         if (event.extendedProps) {
                           const category = event.extendedProps.primary_category;
