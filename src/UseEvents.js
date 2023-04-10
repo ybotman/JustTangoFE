@@ -1,3 +1,5 @@
+/* also not being used 
+
 import { useState, useEffect } from 'react';
 
 export const useEvents = (fetchCategories) => {
@@ -94,3 +96,5 @@ export const useEvents = (fetchCategories) => {
         handleDeleteEvent,
     };
 };
+
+*/

@@ -12,8 +12,8 @@ import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
 import OrganizerFilter from './components/OrganizerFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
-//import EventForm from './EventForm';
 
+//import from ./src ;
 import LoginModal from './LoginModal';
 import EventFormModal from './EventFormModal';
 
@@ -26,7 +26,6 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import './customStyles.css';
 import './calendarStyles.css';
 import './App.css';
-
 
 /**********************  The APP  *******************/
 
@@ -51,21 +50,24 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
-  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, });
+  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: false, Workshop: false, Festival: false, Class: false, Beginner: false });
   const calendarRef = useRef(null);
   const [organizers, setOrganizers] = useState([]);
   const [selectedOrganizers, setSelectedOrganizers] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
-  /* working fucntion that we have to bring in
-    const filterEventsByCategory = (category) => {
-      if (category === "All") {
-        setFilteredEvents(events);
-      } else {
-        const filtered = events.filter((event) => event.primary_category === category);
-        setFilteredEvents(filtered);
-      }
-    };
-  */
+
+  //working fucntion that we have to bring in
+
+  const filterEventsByCategory = (category) => {
+    if (category === "All") {
+      setFilteredEvents(events);
+    } else {
+      const filtered = events.filter((event) => event.primary_category === category);
+      setFilteredEvents(filtered);
+    }
+  };
+
 
   const fetchCategories = async () => {
     const response = await fetch('/api/categories');
@@ -222,6 +224,7 @@ function App() {
     let backgroundColor, textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
 
     switch (category) {
+      case "Milonga": backgroundColor = "lightBlue"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
       case "Practica": backgroundColor = "cyan"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
       case "Workshop": backgroundColor = "lightgreen"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
       case "Festival": backgroundColor = "LimeGreen"; textColor = "black"; fontWeight = "bold"; borderWidth = "2px"; borderStyle = 'solid'; fontSize = "smaller"; borderColor = 'Yellow'; break;
@@ -249,7 +252,9 @@ function App() {
     toggleLoginModal();
   };
 
-  //******************************* use  effects ******************/
+
+
+  //******************************* useEffects ****************** /
   useEffect(() => {
     if (calendarRef.current) {
       calendarRef.current.getApi().render();
@@ -275,9 +280,35 @@ function App() {
     }
   }, []);
 
+  //  useEffect(() => {
+  //    console.log("Active Filters:", activeFilters);
+  //  }, [activeFilters]);
+
+
   useEffect(() => {
-    console.log("Active Filters:", activeFilters);
-  }, [activeFilters]);
+    const isAnyFilterActive = Object.values(activeFilters).some((value) => value);
+
+    const filtered = events.filter((event) => {
+      if (isAnyFilterActive) {
+        return activeFilters[event.primary_category];
+      } else {
+        // Force some filters on when all filters are off
+        return event.primary_category === "Milonga" || event.primary_category === "Practica";
+      }
+    });
+
+    setFilteredEvents(filtered);
+    //  logFilteredEventIDs();
+  }, [activeFilters, events]);
+
+  // In App.js, just before the `return` statement
+  //  const logFilteredEventIDs = () => {
+  //    const filtered = events.filter((event) => activeFilters[event.primary_category]);
+  //    console.log('Filtered event IDs:', filtered.map((event) => event.id));
+  //  };
+
+
+  //  logFilteredEventIDs();
 
 
   //******************************* R E T U R N ******************/
@@ -311,8 +342,10 @@ function App() {
                 categories={categories}
                 activeFilters={activeFilters}
                 handleFilterChange={handleFilterChange}
+                onCategoryChange={filterEventsByCategory}
               />
             </Box>
+
             <Box>
               <OrganizerFilter
                 organizers={organizers}
@@ -342,7 +375,7 @@ function App() {
             initialView="dayGridMonth"
             dateClick={handleDateClick}
             eventClick={handleEventClick}
-            events={events}
+            events={filteredEvents}
             eventContent={({ event, el }) => {
               return renderEventContent({ event });
             }}

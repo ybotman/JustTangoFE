@@ -1,3 +1,4 @@
+/* not being used
 // To persist the user's default region setting across sessions, you can use the browser's local storage. Local storage allows you to store key-value pairs in the user's browser, and the data is stored across browser sessions.
 // Here's an example of how you can save and load the default region from local storage in a React component:
 
@@ -35,3 +36,5 @@ const MyComponent = () => {
 
     // ...rest of the component
 };
+
+*/
