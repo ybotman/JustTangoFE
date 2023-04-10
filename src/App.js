@@ -12,6 +12,7 @@ import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
 import OrganizerFilter from './components/OrganizerFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
+//import CategoryFilterSwitches from './components/CategoryFilterSwitches';
 
 //import from ./src ;
 import LoginModal from './LoginModal';
@@ -59,7 +60,7 @@ function App() {
 
   //working fucntion that we have to bring in
 
-  const filterEventsByCategory = (category) => {
+  /* const filterEventsByCategory = (category) => {
     if (category === "All") {
       setFilteredEvents(events);
     } else {
@@ -67,17 +68,29 @@ function App() {
       setFilteredEvents(filtered);
     }
   };
+*/
+
+  const categoryBackgroundColors = {
+    Milonga: "lightBlue",
+    Practica: "cyan",
+    Workshop: "lightgreen",
+    Festival: "LimeGreen",
+    Class: "white",
+    Beginner: "Grey",
+  };
 
 
   const fetchCategories = async () => {
     const response = await fetch('/api/categories');
     const data = await response.json();
     setCategories(data);
+    //console.log('fetchCategories:', data);
   };
 
 
   const toggleLoginModal = () => {
     setShowLoginModal(!showLoginModal);
+    console.log('toggleLoginModal:', showLoginModal);
   };
 
 
@@ -85,6 +98,7 @@ function App() {
 
   const handleViewChange = (viewType) => {
     calendarRef.current.getApi().changeView(viewType);
+    console.log('viewChanged:', viewType);
   };
 
 
@@ -97,6 +111,7 @@ function App() {
   };
 
 
+
   const handleDateClick = (info) => {
     console.log("Clicked on date:", info.dateStr);
     setSelectedEvent('');
@@ -104,7 +119,7 @@ function App() {
     setShowEventFormModal(true);
   };
 
-  const handleFilterChange = (category, checked) => {
+  /* const handleFilterChange = (category, checked) => {
     setActiveFilters((prevFilters) => {
       const updatedFilters = {
         ...prevFilters,
@@ -114,6 +129,25 @@ function App() {
       return updatedFilters;
     });
 
+  };
+*/
+
+
+  const handleEventClick = (info) => {
+    setSelectedEvent(info.event);
+    setShowEventFormModal(true);
+  };
+
+  const handleOrganizersButtonClick = () => {
+    toggleLoginModal();
+  };
+
+  const handleFilterChange = (category) => {
+    setActiveFilters((prevFilters) => ({
+      ...prevFilters,
+      [category]: !prevFilters[category],
+    }));
+    console.log('handleFilterChange:', category);
   };
 
   const handlePrevButtonClick = () => {
@@ -243,19 +277,46 @@ function App() {
     );
   };
 
-  const handleEventClick = (info) => {
-    setSelectedEvent(info.event);
-    setShowEventFormModal(true);
-  };
-
-  const handleOrganizersButtonClick = () => {
-    toggleLoginModal();
-  };
-
-
-
   //******************************* useEffects ****************** /
   useEffect(() => {
+    if (calendarRef.current) {
+      calendarRef.current.getApi().render();
+    }
+  }, [activeFilters]);
+
+  useEffect(() => {
+    fetch('/api/organizers')
+      .then((response) => response.json())
+      .then((data) => setOrganizers(data));
+    // ...
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/events')
+      .then((response) => response.json())
+      .then((data) => setEvents(data));
+
+    if (fetchCategories) {
+      fetchCategories();
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("Active Filters:", activeFilters);
+  }, [activeFilters]);
+
+  useEffect(() => {
+    const filtered = events.filter((event) => {
+      return activeFilters[event.primary_category];
+    });
+
+    setFilteredEvents(filtered);
+    console.log('UE:setFiltered Events :', filtered);
+    console.log('UE:Active Filters :', activeFilters);
+  }, [activeFilters, events]);
+
+
+  /*  useEffect(() => {
     if (calendarRef.current) {
       calendarRef.current.getApi().render();
     }
@@ -280,9 +341,9 @@ function App() {
     }
   }, []);
 
-  //  useEffect(() => {
-  //    console.log("Active Filters:", activeFilters);
-  //  }, [activeFilters]);
+  useEffect(() => {
+    console.log("Active Filters:", activeFilters);
+  }, [activeFilters]);
 
 
   useEffect(() => {
@@ -298,19 +359,9 @@ function App() {
     });
 
     setFilteredEvents(filtered);
-    //  logFilteredEventIDs();
+    console.log('setFiltered Events :', filtered)
   }, [activeFilters, events]);
-
-  // In App.js, just before the `return` statement
-  //  const logFilteredEventIDs = () => {
-  //    const filtered = events.filter((event) => activeFilters[event.primary_category]);
-  //    console.log('Filtered event IDs:', filtered.map((event) => event.id));
-  //  };
-
-
-  //  logFilteredEventIDs();
-
-
+*/
   //******************************* R E T U R N ******************/
   return (
     <ThemeProvider theme={customTheme}>
@@ -337,14 +388,17 @@ function App() {
               />
             </Box>
 
+
             <Box>
               <CategoryFilter
                 categories={categories}
                 activeFilters={activeFilters}
                 handleFilterChange={handleFilterChange}
-                onCategoryChange={filterEventsByCategory}
+                setActiveFilters={setActiveFilters}
+                categoryColors={categoryBackgroundColors}
               />
             </Box>
+
 
             <Box>
               <OrganizerFilter

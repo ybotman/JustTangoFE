@@ -1,6 +1,3 @@
-
-
-
 import { useState } from 'react';
 
 function EventForm(props) {
