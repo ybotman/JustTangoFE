@@ -12,6 +12,7 @@ import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
 import OrganizerFilter from './components/OrganizerFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
+//import EventForm from './EventForm';
 
 import LoginModal from './LoginModal';
 import EventFormModal from './EventFormModal';
@@ -26,7 +27,24 @@ import './customStyles.css';
 import './calendarStyles.css';
 import './App.css';
 
+
+/**********************  The APP  *******************/
+
+
 function App() {
+
+  /**********************  Defaulting  *******************/
+  const defaultValues = {
+    description: "N/A",
+    secondary_category: "N/A",
+    tri_category: "N/A",
+    organizer: "N/A",
+    location: "Near Boston",
+    recurrence_rule: "",
+    owner_organizerId: "4",
+  };
+
+  /**********************  State Declarations useState *******************/
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [events, setEvents] = useState([]);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
@@ -34,77 +52,82 @@ function App() {
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, });
-  //const [isListView, setIsListView] = useState(false);
   const calendarRef = useRef(null);
   const [organizers, setOrganizers] = useState([]);
   const [selectedOrganizers, setSelectedOrganizers] = useState([]);
 
-  //const [view, setView] = React.useState('month');
+  /* working fucntion that we have to bring in
+    const filterEventsByCategory = (category) => {
+      if (category === "All") {
+        setFilteredEvents(events);
+      } else {
+        const filtered = events.filter((event) => event.primary_category === category);
+        setFilteredEvents(filtered);
+      }
+    };
+  */
+
+  const fetchCategories = async () => {
+    const response = await fetch('/api/categories');
+    const data = await response.json();
+    setCategories(data);
+  };
+
+
+  const toggleLoginModal = () => {
+    setShowLoginModal(!showLoginModal);
+  };
+
+
+  /**********************  handle Functions  **********************/
 
   const handleViewChange = (viewType) => {
     calendarRef.current.getApi().changeView(viewType);
   };
 
 
-  const defaultValues = {
-    secondary_category: "default",
-    tri_category: "default",
-    organizer: "TPB",
-    location: "Near Boston",
-    recurrence_rule: "",
-    owner_organizerId: "4",
+  const handleOrganizerChange = (event) => {
+    if (event.target.checked) {
+      setSelectedOrganizers([...selectedOrganizers, parseInt(event.target.value)]);
+    } else {
+      setSelectedOrganizers(selectedOrganizers.filter((id) => id !== parseInt(event.target.value)));
+    }
   };
 
-  useEffect(() => {
-    if (calendarRef.current) {
-      calendarRef.current.getApi().render();
-    }
-  }, [activeFilters]
-  );
 
-  useEffect(() => {
-    // Fetch organizers from API
-    fetch('/api/organizers')
-      .then((response) => response.json())
-      .then((data) => setOrganizers(data));
-    // ...
-  }, []);
+  const handleDateClick = (info) => {
+    console.log("Clicked on date:", info.dateStr);
+    setSelectedEvent('');
+    setClickedDate(info.date);
+    setShowEventFormModal(true);
+  };
 
-
-  useEffect(() => {
-    fetch('/api/events')
-      .then((response) => response.json())
-      .then((data) => setEvents(data));
-
-    if (fetchCategories) {
-      fetchCategories();
-    }
-  }, []);
-
-
-  const handleEventFormPost = async (eventData) => {
-    console.log("Post eventData:", eventData);
-    const response = await fetch("/api/events", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...eventData, ...defaultValues,
-        category: eventData.category,
-        secondary_category: eventData.secondary_category,
-        tri_category: eventData.tri_category,
-        organizer: eventData.organizer,
-        location: eventData.location,
-        recurrence_rule: eventData.recurrence_rule,
-        owner_organizerId: eventData.owner_organizerId,
-      }),
+  const handleFilterChange = (category, checked) => {
+    setActiveFilters((prevFilters) => {
+      const updatedFilters = {
+        ...prevFilters,
+        [category]: checked,
+      };
+      console.log('Updated filters:', updatedFilters);
+      return updatedFilters;
     });
 
-    const createdEvent = await response.json();
-    setEvents([...events, createdEvent]);
   };
 
+  const handlePrevButtonClick = () => {
+    calendarRef.current.getApi().prev();
+  };
+
+  const handleTodayButtonClick = () => {
+    calendarRef.current.getApi().today();
+  };
+
+  const handleNextButtonClick = () => {
+    calendarRef.current.getApi().next();
+  };
+
+
+  /********************** handle funtions with PUT / POST / DELETE   ******/
   const handleEventFormPut = async (updatedEvent) => {
     console.log("PUT eventData:", updatedEvent);
     const { id, ...eventData } = updatedEvent;
@@ -138,6 +161,31 @@ function App() {
     }
   };
 
+
+  const handleEventFormPost = async (eventData) => {
+    console.log("Post eventData:", eventData);
+    const response = await fetch("/api/events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...eventData, ...defaultValues,
+        category: eventData.category,
+        secondary_category: eventData.secondary_category,
+        tri_category: eventData.tri_category,
+        organizer: eventData.organizer,
+        location: eventData.location,
+        recurrence_rule: eventData.recurrence_rule,
+        owner_organizerId: eventData.owner_organizerId,
+      }),
+    });
+
+    const createdEvent = await response.json();
+    setEvents([...events, createdEvent]);
+  };
+
+
   const handleDeleteEvent = async (eventId) => {
     await fetch(`/api/events/${eventId}`, {
       method: "DELETE",
@@ -145,69 +193,8 @@ function App() {
 
     setEvents(events.filter((event) => event.id !== eventId));
   };
-  /*
-    const handleViewSwitchChange = (event) => {
-      setIsListView(event.target.checked);
-      const newView = event.target.checked ? 'listWeek' : 'dayGridMonth';
-      calendarRef.current.getApi().changeView(newView);
-    };
-  */
-  const toggleLoginModal = () => {
-    setShowLoginModal(!showLoginModal);
-  };
 
-  const handleOrganizerChange = (event) => {
-    if (event.target.checked) {
-      setSelectedOrganizers([...selectedOrganizers, parseInt(event.target.value)]);
-    } else {
-      setSelectedOrganizers(selectedOrganizers.filter((id) => id !== parseInt(event.target.value)));
-    }
-  };
-
-
-  const handleDateClick = (info) => {
-    console.log("Clicked on date:", info.dateStr);
-    setSelectedEvent('');
-    setClickedDate(info.date);
-    setShowEventFormModal(true);
-  };
-
-  const handlePrevButtonClick = () => {
-    calendarRef.current.getApi().prev();
-  };
-
-  const handleTodayButtonClick = () => {
-    calendarRef.current.getApi().today();
-  };
-
-  const handleNextButtonClick = () => {
-    calendarRef.current.getApi().next();
-  };
-
-
-  const handleFilterChange = (category, checked) => {
-    setActiveFilters((prevFilters) => {
-      const updatedFilters = {
-        ...prevFilters,
-        [category]: checked,
-      };
-      console.log('Updated filters:', updatedFilters);
-      return updatedFilters;
-    });
-
-  };
-
-  useEffect(() => {
-    console.log("Active Filters:", activeFilters);
-  }, [activeFilters]);
-
-
-  const fetchCategories = async () => {
-    const response = await fetch('/api/categories');
-    const data = await response.json();
-    setCategories(data);
-  };
-
+  /********************** Theme and Render functions  ***************/
   const customTheme = createTheme({
     components: {
       MuiSwitch: {
@@ -227,6 +214,7 @@ function App() {
       },
     },
   });
+
 
   const renderEventContent = (eventInfo) => {
     const category = eventInfo.event.extendedProps.primary_category;
@@ -257,12 +245,42 @@ function App() {
     setShowEventFormModal(true);
   };
 
-
   const handleOrganizersButtonClick = () => {
     toggleLoginModal();
   };
 
+  //******************************* use  effects ******************/
+  useEffect(() => {
+    if (calendarRef.current) {
+      calendarRef.current.getApi().render();
+    }
+  }, [activeFilters]
+  );
 
+  useEffect(() => {
+    fetch('/api/organizers')
+      .then((response) => response.json())
+      .then((data) => setOrganizers(data));
+    // ...
+  }, []);
+
+
+  useEffect(() => {
+    fetch('/api/events')
+      .then((response) => response.json())
+      .then((data) => setEvents(data));
+
+    if (fetchCategories) {
+      fetchCategories();
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("Active Filters:", activeFilters);
+  }, [activeFilters]);
+
+
+  //******************************* R E T U R N ******************/
   return (
     <ThemeProvider theme={customTheme}>
       <div className="App">
