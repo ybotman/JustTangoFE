@@ -1,0 +1,11 @@
+<FullCalendar className="full-height-calendar"
+
+/>.full - height - calendar {
+    height: 100vh;
+}
+
+.full - height - calendar.fc - list - table {
+    height: calc(100vh - 100px);
+    /* Adjust 100px if you have a different header height */
+    overflow - y: auto;
+}

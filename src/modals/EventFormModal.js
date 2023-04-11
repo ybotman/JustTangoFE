@@ -4,7 +4,7 @@ import {
   TextField, FormControl, InputLabel, Select, MenuItem, Typography,
 } from '@mui/material';
 
-import { formatDate, isValidDates } from './Utils';
+import { formatDate, isValidDates } from '../Utils';
 
 const EventFormModal = ({
   show,
@@ -66,7 +66,6 @@ const EventFormModal = ({
     }
     onHide();
   };
-
 
   const handleDelete = () => {
     if (selectedEvent) {

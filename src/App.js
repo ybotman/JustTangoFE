@@ -10,18 +10,25 @@ import interactionPlugin from '@fullcalendar/interaction';
 //component imports
 import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
-import OrganizerFilter from './components/OrganizerFilter';
+//import OrganizerFilter from './components/OrganizerFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
-//import CategoryFilterSwitches from './components/CategoryFilterSwitches';
 
-//import from ./src ;
-import LoginModal from './LoginModal';
-import EventFormModal from './EventFormModal';
+//import from ./modals ;
+import LoginModal from './modals/LoginModal';
+import EventFormModal from './modals/EventFormModal';
+import AdvancedFilterModal from './modals/AdvancedFilterModal';
 
 //Material User Interfae (MUI) Imports
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
+import PersonIcon from '@mui/icons-material/Person';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Box, IconButton, } from '@mui/material';
-import EditCalendar from '@mui/icons-material/EditCalendar';
+//import EditCalendar from '@mui/icons-material/EditCalendar';
+import EditCalendarIcon from '@mui/icons-material/EditCalendar';
+import CalendarIcon from '@mui/icons-material/CalendarToday';
+
 import SettingsIcon from '@mui/icons-material/Settings';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import './customStyles.css';
@@ -51,32 +58,21 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
-  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: false, Workshop: false, Festival: false, Class: false, Beginner: false });
+  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: false, Festival: false, Class: false, Beginner: false });
   const calendarRef = useRef(null);
-  const [organizers, setOrganizers] = useState([]);
-  const [selectedOrganizers, setSelectedOrganizers] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
-
-
-  //working fucntion that we have to bring in
-
-  /* const filterEventsByCategory = (category) => {
-    if (category === "All") {
-      setFilteredEvents(events);
-    } else {
-      const filtered = events.filter((event) => event.primary_category === category);
-      setFilteredEvents(filtered);
-    }
-  };
-*/
+  const [organizers, setOrganizers] = useState([]);
+  const [userRole, setUserRole] = useState("User");
+  const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const categoryBackgroundColors = {
-    Milonga: "lightBlue",
-    Practica: "cyan",
-    Workshop: "lightgreen",
-    Festival: "LimeGreen",
-    Class: "white",
-    Beginner: "Grey",
+    Milonga: "dodgerblue",
+    Practica: "PowderBlue",
+    Workshop: "limegreen",
+    Festival: "plum",
+    Class: "lavender",
+    Beginner: "wheat",
   };
 
 
@@ -84,17 +80,37 @@ function App() {
     const response = await fetch('/api/categories');
     const data = await response.json();
     setCategories(data);
-    //console.log('fetchCategories:', data);
+    //('fetchCategories:', data);
   };
 
+  const fetchOrganizers = async () => {
+    try {
+      const response = await fetch('/api/organizers');
+      const data = await response.json();
+      setOrganizers(data);
+    } catch (error) {
+      console.error("Error fetching organizers:", error);
+    }
+  };
+
+  const toggleEditMode = () => {
+    setIsEditMode((prevEditMode) => !prevEditMode);
+  };
 
   const toggleLoginModal = () => {
     setShowLoginModal(!showLoginModal);
     console.log('toggleLoginModal:', showLoginModal);
   };
 
+  const toggleAdvancedFilterModal = () => {
+    setShowAdvancedFilterModal(!showAdvancedFilterModal);
+    console.log('toggleAdvancedFilterModal:', !showAdvancedFilterModal);
+  };
 
   /**********************  handle Functions  **********************/
+  const handleRoleChange = (role) => {
+    setUserRole(role);
+  };
 
   const handleViewChange = (viewType) => {
     calendarRef.current.getApi().changeView(viewType);
@@ -102,45 +118,49 @@ function App() {
   };
 
 
-  const handleOrganizerChange = (event) => {
-    if (event.target.checked) {
-      setSelectedOrganizers([...selectedOrganizers, parseInt(event.target.value)]);
-    } else {
-      setSelectedOrganizers(selectedOrganizers.filter((id) => id !== parseInt(event.target.value)));
-    }
-  };
-
-
 
   const handleDateClick = (info) => {
-    console.log("Clicked on date:", info.dateStr);
-    setSelectedEvent('');
-    setClickedDate(info.date);
-    setShowEventFormModal(true);
+    if (userRole === "Organizer" && (isEditMode)) {
+      // Existing functionality for Organizer
+      setShowEventFormModal(true);
+      setClickedDate(info.date);
+      setSelectedEvent(null);
+    }
+    if (userRole === "Admin") {
+      // Existing functionality for Organizer
+      setShowEventFormModal(true);
+      setClickedDate(info.date);
+      setSelectedEvent(null);
+    }
+    console.log(userRole, "Clicked on date:", info.dateStr);
   };
-
-  /* const handleFilterChange = (category, checked) => {
-    setActiveFilters((prevFilters) => {
-      const updatedFilters = {
-        ...prevFilters,
-        [category]: checked,
-      };
-      console.log('Updated filters:', updatedFilters);
-      return updatedFilters;
-    });
-
-  };
-*/
 
 
   const handleEventClick = (info) => {
-    setSelectedEvent(info.event);
-    setShowEventFormModal(true);
+    if (userRole === "Organizer") {
+      // Existing functionality for Organizer
+      setSelectedEvent(info.event);
+      if (isEditMode) {
+        setShowEventFormModal(true);
+      }
+    }
+
+    if (userRole === "Admin") {
+      setSelectedEvent(info.event);
+      setShowEventFormModal(true);
+    }
+
+    if (userRole === "User") {
+      setSelectedEvent(info.event);
+    }
+    console.log(userRole, "Clicked on Event:", info.event);
   };
 
-  const handleOrganizersButtonClick = () => {
-    toggleLoginModal();
+  const handleAdvancedFilterApply = (filters) => {
+    // You can implement your advanced filter logic here, using the filters object
+    console.log('Advanced filter applied:', filters);
   };
+
 
   const handleFilterChange = (category) => {
     setActiveFilters((prevFilters) => ({
@@ -255,16 +275,18 @@ function App() {
   const renderEventContent = (eventInfo) => {
     const category = eventInfo.event.extendedProps.primary_category;
 
-    let backgroundColor, textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
+    let textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
+
+    const backgroundColor = categoryBackgroundColors[category];
 
     switch (category) {
-      case "Milonga": backgroundColor = "lightBlue"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
-      case "Practica": backgroundColor = "cyan"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
-      case "Workshop": backgroundColor = "lightgreen"; textColor = "black"; fontWeight = "bold"; fontSize = "smaller"; break;
-      case "Festival": backgroundColor = "LimeGreen"; textColor = "black"; fontWeight = "bold"; borderWidth = "2px"; borderStyle = 'solid'; fontSize = "smaller"; borderColor = 'Yellow'; break;
-      case "Class": backgroundColor = "white"; textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; break;
-      case "Beginner": backgroundColor = "white"; textColor = "grey"; fontStyle = "italic"; fontWeight = "normal"; fontSize = "smaller"; break;
-      default: backgroundColor = "white"; textColor = "lightgrey"; fontStyle = "italic"; fontSize = "smaller";
+      case "Milonga": textColor = "white"; fontWeight = "normal"; fontSize = "smaller"; break;
+      case "Practica": textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; break;
+      case "Workshop": textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; break;
+      case "Festival": textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; borderColor = 'Yellow'; break;
+      case "Class": textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; break;
+      case "Beginner": textColor = "grey"; fontStyle = "italic"; fontWeight = "normal"; fontSize = "smaller"; break;
+      default: textColor = "lightgrey"; fontStyle = "italic"; fontSize = "smaller";
     }
 
     return (
@@ -302,7 +324,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log("Active Filters:", activeFilters);
+    fetchOrganizers();
+  }, []);
+
+  useEffect(() => {
+    console.log("UE:Active Filters:", activeFilters);
   }, [activeFilters]);
 
   useEffect(() => {
@@ -311,57 +337,27 @@ function App() {
     });
 
     setFilteredEvents(filtered);
-    console.log('UE:setFiltered Events :', filtered);
-    console.log('UE:Active Filters :', activeFilters);
+    //console.log('UE:setFiltered Events :', filtered);
+    //console.log('UE:Active Filters :', activeFilters);
   }, [activeFilters, events]);
 
-
-  /*  useEffect(() => {
-    if (calendarRef.current) {
-      calendarRef.current.getApi().render();
+  useEffect(() => {
+    console.log("UE:userRole:", userRole)
+    if (userRole === "User") {
+      setIsEditMode(false);  // force back to  non-edit
     }
-  }, [activeFilters]
-  );
-
-  useEffect(() => {
-    fetch('/api/organizers')
-      .then((response) => response.json())
-      .then((data) => setOrganizers(data));
-    // ...
-  }, []);
-
-
-  useEffect(() => {
-    fetch('/api/events')
+    // Fetch events based on userRole
+    if (userRole === "Organizer") {
+      const organizerId = 1; // Replace this with the actual organizer ID
+      fetch(`/api/organizers/${organizerId}/events`)
+        .then((response) => response.json())
+        .then((data) => setEvents(data));
+      // Fetch only the events for this organizer
+    } fetch('/api/events')
       .then((response) => response.json())
       .then((data) => setEvents(data));
+  }, [userRole]);
 
-    if (fetchCategories) {
-      fetchCategories();
-    }
-  }, []);
-
-  useEffect(() => {
-    console.log("Active Filters:", activeFilters);
-  }, [activeFilters]);
-
-
-  useEffect(() => {
-    const isAnyFilterActive = Object.values(activeFilters).some((value) => value);
-
-    const filtered = events.filter((event) => {
-      if (isAnyFilterActive) {
-        return activeFilters[event.primary_category];
-      } else {
-        // Force some filters on when all filters are off
-        return event.primary_category === "Milonga" || event.primary_category === "Practica";
-      }
-    });
-
-    setFilteredEvents(filtered);
-    console.log('setFiltered Events :', filtered)
-  }, [activeFilters, events]);
-*/
   //******************************* R E T U R N ******************/
   return (
     <ThemeProvider theme={customTheme}>
@@ -377,9 +373,21 @@ function App() {
             categories={categories}
             clickedDate={clickedDate}
           />
-          <LoginModal show={showLoginModal} onClose={toggleLoginModal} />
+          <LoginModal
+            show={showLoginModal}
+            onClose={toggleLoginModal}
+          />
+          <AdvancedFilterModal
+            show={showAdvancedFilterModal}
+            onHide={toggleAdvancedFilterModal}
+            onApply={handleAdvancedFilterApply}
+            organizers={organizers}
 
+          />
+
+          {/* ***TOP MENU*** */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            {/* ***NAVIGATION*** */}
             <Box>
               <CalendarDateNavigation
                 handlePrevButtonClick={handlePrevButtonClick}
@@ -387,8 +395,7 @@ function App() {
                 handleNextButtonClick={handleNextButtonClick}
               />
             </Box>
-
-
+            {/* ***CAT FILTER*** */}
             <Box>
               <CategoryFilter
                 categories={categories}
@@ -398,29 +405,47 @@ function App() {
                 categoryColors={categoryBackgroundColors}
               />
             </Box>
-
-
+            {/* ***ROLE ICON*** */}
             <Box>
-              <OrganizerFilter
-                organizers={organizers}
-                onOrganizerChange={handleOrganizerChange}
-              />
-            </Box>
+              {userRole === "Admin" && (
+                <IconButton onClick={() => handleRoleChange("User")} sx={{ color: 'Red' }}>
+                  <AdminPanelSettingsIcon />
+                </IconButton>
+              )}
+              {userRole === "Organizer" && (
+                <Box>
+                  <IconButton onClick={() => handleRoleChange("Admin")} sx={{ color: 'purple' }}>
+                    <SupervisedUserCircleIcon />
+                  </IconButton>
+                  {isEditMode ? (
+                    <EditCalendarIcon onClick={toggleEditMode} sx={{ color: 'lightcoral' }} />
+                  ) : (
+                    <CalendarIcon onClick={toggleEditMode} sx={{ color: 'lightgreen' }} />
+                  )}
 
-            <Box>
-              <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
-                <SettingsIcon />
-              </IconButton>
-              <IconButton onClick={handleOrganizersButtonClick} aria-label="Edit" sx={{ color: 'lightcoral' }}>
-                <EditCalendar />
-              </IconButton>
+                </Box>
+              )}
+              {userRole === "User" && (
+                <Box>
+                  <IconButton
+                    onClick={() => handleRoleChange("Organizer")} sx={{ color: 'lightGreen' }}>
+                    <PersonIcon />
+                  </IconButton>
+                  <IconButton onClick={toggleAdvancedFilterModal} sx={{ color: 'lightcoral' }}>
+                    <FilterAltIcon />
+                  </IconButton>
+                  <IconButton sx={{ color: 'lightcoral' }}>
+                    <SettingsIcon />
+                  </IconButton>
+                </Box>
+              )}
             </Box>
+            {/* ***Calendar View Change*** */}
             <Box>
               <CalendarViewSwitch view={calendarRef.current?.getApi().view.type} onChange={handleViewChange} />
-
             </Box>
           </Box>
-
+          {/* ***CALENDAR*** */}
           <FullCalendar
             headerToolbar={{ left: '', center: '', right: '', }}
             nextDayThreshold='05:59:00'
