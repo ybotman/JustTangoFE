@@ -1,0 +1,19 @@
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-col {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.form-col:last-child {
+    margin-right: 0;
+}
+
+.full-width {
+    width: 100%;
+}

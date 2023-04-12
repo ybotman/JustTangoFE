@@ -407,10 +407,19 @@ function App() {
             </Box>
             {/* ***ROLE ICON*** */}
             <Box>
+
               {userRole === "Admin" && (
-                <IconButton onClick={() => handleRoleChange("User")} sx={{ color: 'Red' }}>
-                  <AdminPanelSettingsIcon />
-                </IconButton>
+                <Box>
+                  <IconButton onClick={() => handleRoleChange("User")} sx={{ color: 'Red' }}>
+                    <AdminPanelSettingsIcon />
+                  </IconButton>
+                  {isEditMode ? (
+                    <EditCalendarIcon onClick={toggleEditMode} sx={{ color: 'lightcoral' }} />
+                  ) : (
+                    <CalendarIcon onClick={toggleEditMode} sx={{ color: 'lightgreen' }} />
+                  )}
+                </Box>
+
               )}
               {userRole === "Organizer" && (
                 <Box>
