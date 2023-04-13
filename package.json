@@ -15,7 +15,7 @@
     "@fullcalendar/rrule": "^6.1.5",
     "@fullcalendar/timegrid": "^6.1.5",
     "@mui/icons-material": "^5.11.16",
-    "@mui/material": "^5.11.16",
+    "@mui/material": "^5.12.0",
     "@mui/styled-engine-sc": "^5.11.11",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -27,6 +27,7 @@
     "react-datepicker": "^4.11.0",
     "react-dom": "^18.0.0",
     "react-scripts": "^5.0.1",
+    "rrule": "^2.7.2",
     "styled-components": "^5.3.9",
     "web-vitals": "^2.1.4"
   },

@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Dialog, DialogTitle, DialogContent, DialogActions, Button,
-    TextField, FormControl, InputLabel, Select, MenuItem, Typography, Grid,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Typography,
+    Grid,
 } from '@mui/material';
 
 import { formatDate, isValidDates } from '../Utils';
@@ -19,17 +29,19 @@ const EventFormModal = ({
     const [title, setTitle] = useState('');
     const [primaryCategory, setPrimaryCategory] = useState('');
     const [secondaryCategory, setSecondaryCategory] = useState('');
-    const [tertiaryCategory, setTertiaryCategory] = useState('');
     const [description, setDescription] = useState('');
     const [start, setStart] = useState('');
     const [end, setEnd] = useState('');
+    const [recurrenceType, setRecurrenceType] = useState('None');
+    const [recurrenceWeekOfMonth, setRecurrenceWeekOfMonth] = useState('');
+    const [exclusionDates, setExclusionDates] = useState('');
+    const [repeat, setRepeat] = useState(false);
 
     useEffect(() => {
         if (selectedEvent) {
             setTitle(selectedEvent.title);
             setPrimaryCategory(selectedEvent.extendedProps.primary_category);
             setSecondaryCategory(selectedEvent.extendedProps.secondary_category);
-            setTertiaryCategory(selectedEvent.extendedProps.tertiary_category);
             setDescription(selectedEvent.extendedProps.description);
             setStart(formatDate(new Date(selectedEvent.start)));
             setEnd(selectedEvent.end ? formatDate(new Date(selectedEvent.end)) : '');
@@ -38,7 +50,7 @@ const EventFormModal = ({
             setTitle('');
             setPrimaryCategory('');
             setSecondaryCategory('');
-            setTertiaryCategory('');
+
             setDescription('');
             setStart('');
             setEnd('');
@@ -57,7 +69,6 @@ const EventFormModal = ({
                 title,
                 primary_category: primaryCategory,
                 secondary_category: secondaryCategory,
-                tertiary_category: tertiaryCategory,
                 description,
                 start,
                 end,
@@ -68,13 +79,15 @@ const EventFormModal = ({
                 title,
                 primary_category: primaryCategory,
                 secondary_category: secondaryCategory,
-                tertiary_category: tertiaryCategory,
                 description,
                 start,
                 end,
             });
         }
         onHide();
+    };
+    const handleRepeatClick = () => {
+        setRepeat(!repeat);
     };
 
     const handleDelete = () => {
@@ -92,7 +105,6 @@ const EventFormModal = ({
                         Event ID: {selectedEvent.id}
                     </Typography>
                 )}
-
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
                         <FormControl fullWidth margin="normal">
@@ -139,24 +151,9 @@ const EventFormModal = ({
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} md={2}>
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>Tertiary Category</InputLabel>
-                            <Select
-                                value={tertiaryCategory || ''}
-                                onChange={(e) => setTertiaryCategory(e.target.value)}
-                            >
-                                <MenuItem value="">
-                                    <em>Select category</em>
-                                </MenuItem>
-                                {categories.map((cat) => (
-                                    <MenuItem key={cat.category} value={cat.category}>
-                                        {cat.category}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
+                </Grid>
+
+                <Grid container spacing={2}>
                     <Grid item xs={12}>
                         <FormControl fullWidth margin="normal">
                             <TextField
@@ -178,8 +175,6 @@ const EventFormModal = ({
                                 InputLabelProps={{ shrink: true }}
                             />
                         </FormControl>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
                         <FormControl fullWidth margin="normal">
                             <TextField
                                 label="End"
@@ -189,8 +184,55 @@ const EventFormModal = ({
                                 InputLabelProps={{ shrink: true }}
                             />
                         </FormControl>
+                        <Button variant="outlined" onClick={handleRepeatClick}>
+                            Repeat
+                        </Button>
                     </Grid>
                 </Grid>
+                {repeat && (
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={4}>
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel>Recurrence Type</InputLabel>
+                                <Select
+                                    value={recurrenceType}
+                                    onChange={(e) => setRecurrenceType(e.target.value)}
+                                >
+                                    <MenuItem value="None">None</MenuItem>
+                                    <MenuItem value="Weekly">Weekly</MenuItem>
+                                    <MenuItem value="Monthly">Monthly</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        {recurrenceType === 'Monthly' && (
+                            <Grid item xs={12} md={4}>
+                                <FormControl fullWidth margin="normal">
+                                    <InputLabel>Recurrence Week of Month</InputLabel>
+                                    <Select
+                                        value={recurrenceWeekOfMonth}
+                                        onChange={(e) => setRecurrenceWeekOfMonth(e.target.value)}
+                                    >
+                                        <MenuItem value="First">First</MenuItem>
+                                        <MenuItem value="Second">Second</MenuItem>
+                                        <MenuItem value="Third">Third</MenuItem>
+                                        <MenuItem value="Fourth">Fourth</MenuItem>
+                                        <MenuItem value="Last">Last</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        )}
+                        <Grid item xs={12} md={4}>
+                            <FormControl fullWidth margin="normal">
+                                <TextField
+                                    label="Exclusion Dates"
+                                    value={exclusionDates}
+                                    onChange={(e) => setExclusionDates(e.target.value)}
+                                    placeholder="YYYY-MM-DD, YYYY-MM-DD, ..."
+                                />
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                )}
             </DialogContent>
             <DialogActions>
                 {selectedEvent && (
@@ -207,7 +249,6 @@ const EventFormModal = ({
             </DialogActions>
         </Dialog>
     );
-
 };
 
 export default EventFormModal;
