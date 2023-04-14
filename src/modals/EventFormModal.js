@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 
 import { formatDate, isValidDates } from '../Utils';
+import { buildRRuleString } from '../utilities/rruleUtils';
 
 const EventFormModal = ({
     show,
@@ -62,6 +63,8 @@ const EventFormModal = ({
             return;
         }
 
+        const rruleString = buildRRuleString(recurrenceType, recurrenceWeekOfMonth, exclusionDates);
+
         if (selectedEvent) {
             console.log("PUT request event with title category:", title, primaryCategory);
             onPut({
@@ -72,6 +75,7 @@ const EventFormModal = ({
                 description,
                 start,
                 end,
+                rrecurrence_rule: rruleString,
             });
         } else {
             console.log("POST request event with title category:", title, primaryCategory);
@@ -82,8 +86,10 @@ const EventFormModal = ({
                 description,
                 start,
                 end,
+                rrecurrence_rule: rruleString,
             });
         }
+
         onHide();
     };
     const handleRepeatClick = () => {
