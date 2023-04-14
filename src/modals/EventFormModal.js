@@ -14,7 +14,8 @@ import {
     Grid,
 } from '@mui/material';
 
-import { formatDate, isValidDates } from '../Utils';
+
+import { formatDate, isValidDates } from '../utilities/DateUtils';
 import { buildRRuleString } from '../utilities/rruleUtils';
 
 const EventFormModal = ({
