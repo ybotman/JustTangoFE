@@ -14,6 +14,8 @@ import CategoryFilter from './components/CategoryFilter';
 //import OrganizerFilter from './components/OrganizerFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
 import { useHandlers } from "./components/HandlerProvider";
+import { useFetchData } from './hooks/useFetchData';
+
 
 //import from ./modals ;
 import LoginModal from './modals/LoginModal';
@@ -41,33 +43,24 @@ import './App.css';
 
 function App() {
 
-  /**********************  Defaulting  *******************/
-  const defaultValues = {
-    description: "N/A",
-    secondary_category: "N/A",
-    tri_category: "N/A",
-    organizer: "N/A",
-    location: "Near Boston",
-    recurrence_rule: "",
-    authenticaed_organizerId: "4",
-    owner_organizerId: "4",
-  };
 
   /**********************  State Declarations useState *******************/
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [events, setEvents] = useState([]);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
-  const [categories, setCategories] = useState([]);
+  //const [categories, setCategories] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: false, Festival: false, Class: false, Beginner: false });
   const calendarRef = useRef(null);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [organizers, setOrganizers] = useState([]);
+  //  const [organizers, setOrganizers] = useState([]);
   const [userRole, setUserRole] = useState("User");
   const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   //const [ownerOrganizerId, setOwnerOrganizerId] = useState(authenticated_organizerID);
+  const { categories, organizers } = useFetchData();
+
 
   const categoryBackgroundColors = {
     Milonga: "dodgerblue",
@@ -78,23 +71,6 @@ function App() {
     Beginner: "wheat",
   };
 
-
-  const fetchCategories = async () => {
-    const response = await fetch('/api/categories');
-    const data = await response.json();
-    setCategories(data);
-    //('fetchCategories:', data);
-  };
-
-  const fetchOrganizers = async () => {
-    try {
-      const response = await fetch('/api/organizers');
-      const data = await response.json();
-      setOrganizers(data);
-    } catch (error) {
-      console.error("Error fetching organizers:", error);
-    }
-  };
 
   const toggleEditMode = () => {
     setIsEditMode((prevEditMode) => !prevEditMode);
@@ -122,36 +98,6 @@ function App() {
     handleTodayButtonClick,
     handleNextButtonClick
   } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters);
-  /*
-    const handleRoleChange = (role) => {
-      setUserRole(role);
-    };
-  
-    const handleViewChange = (viewType) => {
-      calendarRef.current.getApi().changeView(viewType);
-      console.log('viewChanged:', viewType);
-    };
-  
-    const handleFilterChange = (category) => {
-      setActiveFilters((prevFilters) => ({
-        ...prevFilters,
-        [category]: !prevFilters[category],
-      }));
-      console.log('handleFilterChange:', category);
-    };
-  
-    const handlePrevButtonClick = () => {
-      calendarRef.current.getApi().prev();
-    };
-  
-    const handleTodayButtonClick = () => {
-      calendarRef.current.getApi().today();
-    };
-  
-    const handleNextButtonClick = () => {
-      calendarRef.current.getApi().next();
-    };
-  /*/
 
   const handleAdvancedFilterApply = (filters) => {
     // You can implement your advanced filter logic here, using the filters object
@@ -172,7 +118,7 @@ function App() {
         },
         body: JSON.stringify({
           ...eventData,
-          ...defaultValues,
+          //        ...defaultValues,
           category: eventData.primary_category,
           secondary_category: eventData.secondary_category,
           tri_category: eventData.tri_category,
@@ -202,7 +148,8 @@ function App() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        ...eventData, ...defaultValues,
+        ...eventData,
+        //...defaultValues,
         category: eventData.category,
         secondary_category: eventData.secondary_category,
         tri_category: eventData.tri_category,
@@ -274,7 +221,6 @@ function App() {
   };
 
 
-
   const renderEventContent = (eventInfo) => {
     const category = eventInfo.event.extendedProps.primary_category;
 
@@ -308,27 +254,6 @@ function App() {
       calendarRef.current.getApi().render();
     }
   }, [activeFilters]);
-
-  useEffect(() => {
-    fetch('/api/organizers')
-      .then((response) => response.json())
-      .then((data) => setOrganizers(data));
-    // ...
-  }, []);
-
-  useEffect(() => {
-    fetch('/api/events')
-      .then((response) => response.json())
-      .then((data) => setEvents(data));
-
-    if (fetchCategories) {
-      fetchCategories();
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchOrganizers();
-  }, []);
 
   useEffect(() => {
     console.log("UE:Active Filters:", activeFilters);
