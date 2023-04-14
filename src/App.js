@@ -6,6 +6,8 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
+import rrulePlugin from '@fullcalendar/rrule'
+//import { Calendar } from '@fullcalendar/core';
 
 //component imports
 import CalendarDateNavigation from './components/CalendarDateNavigation';
@@ -23,7 +25,6 @@ import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Box, IconButton, } from '@mui/material';
-//import EditCalendar from '@mui/icons-material/EditCalendar';
 import EditCalendarIcon from '@mui/icons-material/EditCalendar';
 import CalendarIcon from '@mui/icons-material/CalendarToday';
 
@@ -48,6 +49,7 @@ function App() {
     organizer: "N/A",
     location: "Near Boston",
     recurrence_rule: "",
+    authenticaed_organizerId: "4",
     owner_organizerId: "4",
   };
 
@@ -65,6 +67,7 @@ function App() {
   const [userRole, setUserRole] = useState("User");
   const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  //const [ownerOrganizerId, setOwnerOrganizerId] = useState(authenticated_organizerID);
 
   const categoryBackgroundColors = {
     Milonga: "dodgerblue",
@@ -358,6 +361,18 @@ function App() {
       .then((data) => setEvents(data));
   }, [userRole]);
 
+
+  useEffect(() => {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar(calendarEl, {
+      plugins: [rrulePlugin, dayGridPlugin],
+      events,
+    });
+
+    calendar.render();
+  }, [events]);
+
+
   //******************************* R E T U R N ******************/
   return (
     <ThemeProvider theme={customTheme}>
@@ -456,10 +471,16 @@ function App() {
           </Box>
           {/* ***CALENDAR*** */}
           <FullCalendar
+            plugins={[
+              dayGridPlugin,
+              timeGridPlugin,
+              listPlugin,
+              interactionPlugin,
+              rrulePlugin,
+            ]}
             headerToolbar={{ left: '', center: '', right: '', }}
             nextDayThreshold='05:59:00'
             ref={calendarRef}
-            plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             dateClick={handleDateClick}
             eventClick={handleEventClick}
