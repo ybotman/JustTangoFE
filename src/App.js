@@ -115,81 +115,47 @@ function App() {
   const {
     handleEventClick,
     handleDateClick,
-  } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate);
-
-
-  const handleRoleChange = (role) => {
-    setUserRole(role);
-  };
-
-  const handleViewChange = (viewType) => {
-    calendarRef.current.getApi().changeView(viewType);
-    console.log('viewChanged:', viewType);
-  };
-
-
-  /* 
-    const handleDateClick = (info) => {
-      if (userRole === "Organizer" && (isEditMode)) {
-        // Existing functionality for Organizer
-        setShowEventFormModal(true);
-        setClickedDate(info.date);
-        setSelectedEvent(null);
-      }
-      if (userRole === "Admin") {
-        // Existing functionality for Organizer
-        setShowEventFormModal(true);
-        setClickedDate(info.date);
-        setSelectedEvent(null);
-      }
-      console.log(userRole, "Clicked on date:", info.dateStr);
+    handleRoleChange,
+    handleViewChange,
+    handleFilterChange,
+    handlePrevButtonClick,
+    handleTodayButtonClick,
+    handleNextButtonClick
+  } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters);
+  /*
+    const handleRoleChange = (role) => {
+      setUserRole(role);
     };
   
-    
-      const handleEventClick = (info) => {
-        if (userRole === "Organizer") {
-          // Existing functionality for Organizer
-          setSelectedEvent(info.event);
-          if (isEditMode) {
-            setShowEventFormModal(true);
-          }
-        }
-    
-        if (userRole === "Admin") {
-          setSelectedEvent(info.event);
-          setShowEventFormModal(true);
-        }
-    
-        if (userRole === "User") {
-          setSelectedEvent(info.event);
-        }
-        console.log(userRole, "Clicked on Event:", info.event);
-      };
-    */
+    const handleViewChange = (viewType) => {
+      calendarRef.current.getApi().changeView(viewType);
+      console.log('viewChanged:', viewType);
+    };
+  
+    const handleFilterChange = (category) => {
+      setActiveFilters((prevFilters) => ({
+        ...prevFilters,
+        [category]: !prevFilters[category],
+      }));
+      console.log('handleFilterChange:', category);
+    };
+  
+    const handlePrevButtonClick = () => {
+      calendarRef.current.getApi().prev();
+    };
+  
+    const handleTodayButtonClick = () => {
+      calendarRef.current.getApi().today();
+    };
+  
+    const handleNextButtonClick = () => {
+      calendarRef.current.getApi().next();
+    };
+  /*/
+
   const handleAdvancedFilterApply = (filters) => {
     // You can implement your advanced filter logic here, using the filters object
     console.log('Advanced filter applied:', filters);
-  };
-
-
-  const handleFilterChange = (category) => {
-    setActiveFilters((prevFilters) => ({
-      ...prevFilters,
-      [category]: !prevFilters[category],
-    }));
-    console.log('handleFilterChange:', category);
-  };
-
-  const handlePrevButtonClick = () => {
-    calendarRef.current.getApi().prev();
-  };
-
-  const handleTodayButtonClick = () => {
-    calendarRef.current.getApi().today();
-  };
-
-  const handleNextButtonClick = () => {
-    calendarRef.current.getApi().next();
   };
 
 
