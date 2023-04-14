@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
 export const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters) => {
-
     const handleEventClick = useCallback((info) => {
         if (userRole === "Organizer") {
             // Existing functionality for Organizer

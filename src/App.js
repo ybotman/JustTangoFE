@@ -15,6 +15,7 @@ import CategoryFilter from './components/CategoryFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
 import { useHandlers } from "./components/HandlerProvider";
 import { useFetchData } from './hooks/useFetchData';
+import { useFetchDataEvents } from './hooks/useFetchDataEvents';
 
 
 //import from ./modals ;
@@ -46,21 +47,20 @@ function App() {
 
   /**********************  State Declarations useState *******************/
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [events, setEvents] = useState([]);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
-  //const [categories, setCategories] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [clickedDate, setClickedDate] = useState('');
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: false, Festival: false, Class: false, Beginner: false });
   const calendarRef = useRef(null);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  //  const [organizers, setOrganizers] = useState([]);
   const [userRole, setUserRole] = useState("User");
   const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   //const [ownerOrganizerId, setOwnerOrganizerId] = useState(authenticated_organizerID);
   const { categories, organizers } = useFetchData();
 
+  const organizerId = 1; // Replace this with the actual organizer ID
+  const { events, setEvents } = useFetchDataEvents(userRole, organizerId);
 
   const categoryBackgroundColors = {
     Milonga: "dodgerblue",
@@ -118,7 +118,6 @@ function App() {
         },
         body: JSON.stringify({
           ...eventData,
-          //        ...defaultValues,
           category: eventData.primary_category,
           secondary_category: eventData.secondary_category,
           tri_category: eventData.tri_category,
@@ -149,7 +148,6 @@ function App() {
       },
       body: JSON.stringify({
         ...eventData,
-        //...defaultValues,
         category: eventData.category,
         secondary_category: eventData.secondary_category,
         tri_category: eventData.tri_category,
@@ -269,23 +267,12 @@ function App() {
     //console.log('UE:Active Filters :', activeFilters);
   }, [activeFilters, events]);
 
-  useEffect(() => {
-    console.log("UE:userRole:", userRole)
-    if (userRole === "User") {
-      setIsEditMode(false);  // force back to  non-edit
-    }
-    // Fetch events based on userRole
-    if (userRole === "Organizer") {
-      const organizerId = 1; // Replace this with the actual organizer ID
-      fetch(`/api/organizers/${organizerId}/events`)
-        .then((response) => response.json())
-        .then((data) => setEvents(data));
-      // Fetch only the events for this organizer
-    } fetch('/api/events')
-      .then((response) => response.json())
-      .then((data) => setEvents(data));
-  }, [userRole]);
 
+  useEffect(() => {
+    if (userRole === "User") {
+      setIsEditMode(false);  // force back to non-edit
+    }
+  }, [userRole]);
 
   useEffect(() => {
     const calendarEl = document.getElementById('calendar');
@@ -296,7 +283,6 @@ function App() {
 
     calendar.render();
   }, [events]);
-
 
   //******************************* R E T U R N ******************/
   return (
