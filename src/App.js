@@ -7,13 +7,13 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import rrulePlugin from '@fullcalendar/rrule'
-//import { Calendar } from '@fullcalendar/core';
 
 //component imports
 import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
 //import OrganizerFilter from './components/OrganizerFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
+import { useHandlers } from "./components/HandlerProvider";
 
 //import from ./modals ;
 import LoginModal from './modals/LoginModal';
@@ -111,6 +111,13 @@ function App() {
   };
 
   /**********************  handle Functions  **********************/
+
+  const {
+    handleEventClick,
+    handleDateClick,
+  } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate);
+
+
   const handleRoleChange = (role) => {
     setUserRole(role);
   };
@@ -121,44 +128,44 @@ function App() {
   };
 
 
-
-  const handleDateClick = (info) => {
-    if (userRole === "Organizer" && (isEditMode)) {
-      // Existing functionality for Organizer
-      setShowEventFormModal(true);
-      setClickedDate(info.date);
-      setSelectedEvent(null);
-    }
-    if (userRole === "Admin") {
-      // Existing functionality for Organizer
-      setShowEventFormModal(true);
-      setClickedDate(info.date);
-      setSelectedEvent(null);
-    }
-    console.log(userRole, "Clicked on date:", info.dateStr);
-  };
-
-
-  const handleEventClick = (info) => {
-    if (userRole === "Organizer") {
-      // Existing functionality for Organizer
-      setSelectedEvent(info.event);
-      if (isEditMode) {
+  /* 
+    const handleDateClick = (info) => {
+      if (userRole === "Organizer" && (isEditMode)) {
+        // Existing functionality for Organizer
         setShowEventFormModal(true);
+        setClickedDate(info.date);
+        setSelectedEvent(null);
       }
-    }
-
-    if (userRole === "Admin") {
-      setSelectedEvent(info.event);
-      setShowEventFormModal(true);
-    }
-
-    if (userRole === "User") {
-      setSelectedEvent(info.event);
-    }
-    console.log(userRole, "Clicked on Event:", info.event);
-  };
-
+      if (userRole === "Admin") {
+        // Existing functionality for Organizer
+        setShowEventFormModal(true);
+        setClickedDate(info.date);
+        setSelectedEvent(null);
+      }
+      console.log(userRole, "Clicked on date:", info.dateStr);
+    };
+  
+    
+      const handleEventClick = (info) => {
+        if (userRole === "Organizer") {
+          // Existing functionality for Organizer
+          setSelectedEvent(info.event);
+          if (isEditMode) {
+            setShowEventFormModal(true);
+          }
+        }
+    
+        if (userRole === "Admin") {
+          setSelectedEvent(info.event);
+          setShowEventFormModal(true);
+        }
+    
+        if (userRole === "User") {
+          setSelectedEvent(info.event);
+        }
+        console.log(userRole, "Clicked on Event:", info.event);
+      };
+    */
   const handleAdvancedFilterApply = (filters) => {
     // You can implement your advanced filter logic here, using the filters object
     console.log('Advanced filter applied:', filters);
@@ -205,7 +212,7 @@ function App() {
           tri_category: eventData.tri_category,
           organizer: eventData.organizer,
           location: eventData.location,
-          recurrence_rule: eventData.recurrence_rule,
+          recurrence_rule: eventData.recurrence_rule && eventData.recurrence_rule.trim() !== "" ? eventData.recurrence_rule : null,
           owner_organizerId: eventData.owner_organizerId,
         }),
       });
@@ -235,7 +242,7 @@ function App() {
         tri_category: eventData.tri_category,
         organizer: eventData.organizer,
         location: eventData.location,
-        recurrence_rule: eventData.recurrence_rule,
+        recurrence_rule: eventData.recurrence_rule && eventData.recurrence_rule.trim() !== "" ? eventData.recurrence_rule : null,
         owner_organizerId: eventData.owner_organizerId,
       }),
     });
@@ -273,6 +280,33 @@ function App() {
       },
     },
   });
+
+
+  const transformedEvents = (events) => {
+    return events.map((event) => {
+      if (event.recurrence_rule && event.recurrence_rule.trim() === "") {
+        console.log("Invalid empty string in event:", event);
+      }
+
+      return {
+        id: event.id,
+        title: event.title,
+        start: event.start,
+        end: event.end,
+        rrule: event.recurrence_rule,
+        extendedProps: {
+          primary_category: event.primary_category,
+          secondary_category: event.secondary_category,
+          tri_category: event.tri_category,
+          organizer: event.organizer,
+          location: event.location,
+          owner_organizerId: event.owner_organizerId,
+          standard_name: event.standard_name,
+        },
+      };
+    });
+  };
+
 
 
   const renderEventContent = (eventInfo) => {
@@ -484,7 +518,7 @@ function App() {
             initialView="dayGridMonth"
             dateClick={handleDateClick}
             eventClick={handleEventClick}
-            events={filteredEvents}
+            events={transformedEvents(filteredEvents)}
             eventContent={({ event, el }) => {
               return renderEventContent({ event });
             }}

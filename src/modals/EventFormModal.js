@@ -1,19 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    TextField,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Typography,
-    Grid,
+    Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, InputLabel, Select, MenuItem, Typography, Grid,
 } from '@mui/material';
-
 
 import { formatDate, isValidDates } from '../utilities/DateUtils';
 import { buildRRuleString } from '../utilities/rruleUtils';
@@ -76,7 +64,7 @@ const EventFormModal = ({
                 description,
                 start,
                 end,
-                rrecurrence_rule: rruleString,
+                recurrence_rule: rruleString,
             });
         } else {
             console.log("POST request event with title category:", title, primaryCategory);
@@ -87,7 +75,7 @@ const EventFormModal = ({
                 description,
                 start,
                 end,
-                rrecurrence_rule: rruleString,
+                recurrence_rule: rruleString,
             });
         }
 
