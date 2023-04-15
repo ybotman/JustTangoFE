@@ -147,41 +147,44 @@ const EventFormModal = ({
                         </FormControl>
                     </Grid>
                 </Grid>
-
                 <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <FormControl fullWidth margin="normal">
-                            <TextField
-                                label="Description"
-                                multiline
-                                rows={3}
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <FormControl fullWidth margin="normal">
-                            <TextField
-                                label="Start"
-                                type="datetime-local"
-                                value={start}
-                                onChange={(e) => setStart(e.target.value)}
-                                InputLabelProps={{ shrink: true }}
-                            />
-                        </FormControl>
-                        <FormControl fullWidth margin="normal">
-                            <TextField
-                                label="End"
-                                type="datetime-local"
-                                value={end}
-                                onChange={(e) => setEnd(e.target.value)}
-                                InputLabelProps={{ shrink: true }}
-                            />
-                        </FormControl>
-                        <Button variant="outlined" onClick={handleRepeatClick}>
-                            Repeat
-                        </Button>
+
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={6}>
+                            <FormControl fullWidth margin="normal">
+                                <TextField
+                                    label="Description"
+                                    multiline
+                                    rows={3}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <FormControl fullWidth margin="normal">
+                                <TextField
+                                    label="Start"
+                                    type="datetime-local"
+                                    value={start}
+                                    onChange={(e) => setStart(e.target.value)}
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                            </FormControl>
+                            <FormControl fullWidth margin="normal">
+                                <TextField
+                                    label="End"
+                                    type="datetime-local"
+                                    value={end}
+                                    onChange={(e) => setEnd(e.target.value)}
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                            </FormControl>
+                            <Button variant="outlined" onClick={handleRepeatClick}>
+                                Repeat
+                            </Button>
+                        </Grid>
+
                     </Grid>
                 </Grid>
                 {repeat && (
@@ -229,6 +232,9 @@ const EventFormModal = ({
                     </Grid>
                 )}
             </DialogContent>
+
+
+
             <DialogActions>
                 {selectedEvent && (
                     <Button variant="contained" color="error" onClick={handleDelete}>
