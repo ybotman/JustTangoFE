@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+
 //FullCalendar imports
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -41,7 +42,6 @@ import './calendarStyles.css';
 import './App.css';
 
 /**********************  The APP  *******************/
-
 
 function App() {
 

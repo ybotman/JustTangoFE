@@ -197,6 +197,7 @@ const EventFormModal = ({
                                     onChange={(e) => setRecurrenceType(e.target.value)}
                                 >
                                     <MenuItem value="None">None</MenuItem>
+                                    <MenuItem value="Daily">None</MenuItem>
                                     <MenuItem value="Weekly">Weekly</MenuItem>
                                     <MenuItem value="Monthly">Monthly</MenuItem>
                                 </Select>
