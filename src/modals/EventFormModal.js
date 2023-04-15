@@ -3,6 +3,7 @@ import {
     Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, InputLabel, Select, MenuItem, Typography, Grid,
 } from '@mui/material';
 
+
 import { formatDate, isValidDates } from '../utilities/DateUtils';
 import { buildRRuleString } from '../utilities/rruleUtils';
 
@@ -163,13 +164,17 @@ const EventFormModal = ({
                         </Grid>
                         <Grid item xs={12} md={4}>
                             <FormControl fullWidth margin="normal">
+
                                 <TextField
                                     label="Start"
+
                                     type="datetime-local"
-                                    value={start}
-                                    onChange={(e) => setStart(e.target.value)}
+                                    value={end}
+                                    onChange={(e) => setEnd(e.target.value)}
                                     InputLabelProps={{ shrink: true }}
+
                                 />
+
                             </FormControl>
                             <FormControl fullWidth margin="normal">
                                 <TextField
@@ -197,7 +202,7 @@ const EventFormModal = ({
                                     onChange={(e) => setRecurrenceType(e.target.value)}
                                 >
                                     <MenuItem value="None">None</MenuItem>
-                                    <MenuItem value="Daily">None</MenuItem>
+                                    <MenuItem value="Daily">Daily (FEST/WRKSHP)</MenuItem>
                                     <MenuItem value="Weekly">Weekly</MenuItem>
                                     <MenuItem value="Monthly">Monthly</MenuItem>
                                 </Select>
