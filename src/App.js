@@ -16,6 +16,7 @@ import CalendarViewSwitch from './components/CalendarViewSwitch';
 import { useHandlers } from "./components/HandlerProvider";
 import { useFetchData } from './hooks/useFetchData';
 import { useFetchDataEvents } from './hooks/useFetchDataEvents';
+import { useEventAPIHandlers } from './hooks/useEventAPIHandlers';
 
 
 //import from ./modals ;
@@ -49,7 +50,7 @@ function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState('');
-  const [clickedDate, setClickedDate] = useState('');
+  // [clickedDate, setClickedDate] = useState('');
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: false, Festival: false, Class: false, Beginner: false });
   const calendarRef = useRef(null);
   const [filteredEvents, setFilteredEvents] = useState([]);
@@ -58,9 +59,9 @@ function App() {
   const [isEditMode, setIsEditMode] = useState(false);
   //const [ownerOrganizerId, setOwnerOrganizerId] = useState(authenticated_organizerID);
   const { categories, organizers } = useFetchData();
+  // const { handleEventFormPut, handleEventFormPost, handleDeleteEvent, } = useEventAPIHandlers(events, setEvents);
 
-  const organizerId = 1; // Replace this with the actual organizer ID
-  const { events, setEvents } = useFetchDataEvents(userRole, organizerId);
+  // const { events, setEvents } = useFetchDataEvents(userRole, organizerId);
 
   const categoryBackgroundColors = {
     Milonga: "dodgerblue",
@@ -88,6 +89,16 @@ function App() {
 
   /**********************  handle Functions  **********************/
 
+  const { events, setEvents } = useFetchDataEvents(userRole);
+
+  const {
+    handleEventFormPut,
+    handleEventFormPost,
+    handleDeleteEvent,
+    clickedDate,
+    setClickedDate,
+  } = useEventAPIHandlers(events, setEvents);
+
   const {
     handleEventClick,
     handleDateClick,
@@ -105,7 +116,7 @@ function App() {
   };
 
 
-  /********************** handle funtions with PUT / POST / DELETE   ******/
+  /********************** handle funtions with PUT / POST / DELETE   *****
   const handleEventFormPut = async (updatedEvent) => {
     console.log("PUT eventData:", updatedEvent);
     const { id, ...eventData } = updatedEvent;
