@@ -230,6 +230,10 @@ function App() {
   return (
     <ThemeProvider theme={customTheme}>
       <div className="App">
+        <header className="App-header">
+          <img src="/JustTangoV1.jpg" className="App-banner" alt="Just Tango Banner" />
+          <h1>Welcome to Tango Calendar</h1>
+        </header>
         <div className="app-content">
           <EventFormModal
             show={showEventFormModal}
