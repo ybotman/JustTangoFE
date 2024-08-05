@@ -13,6 +13,8 @@ const ModalContent = styled('div')({
     padding: '1rem',
     borderRadius: '5px',
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.25)',
+    width: '600px',  // Adjust the width as needed
+    maxWidth: '90vw',  // Ensure it doesn't exceed viewport width
 });
 
 

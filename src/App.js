@@ -51,7 +51,7 @@ function App() {
   const [showEventFormModal, setShowEventFormModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState('');
   // [clickedDate, setClickedDate] = useState('');
-  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: false, Festival: false, Class: false, Beginner: false });
+  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, Festival: true, Class: true, Beginner: true });
   const calendarRef = useRef(null);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [userRole, setUserRole] = useState("User");
@@ -231,7 +231,7 @@ function App() {
     <ThemeProvider theme={customTheme}>
       <div className="App">
         <header className="App-header">
-          <img src="/JustTangoV1.jpg" className="App-banner" alt="Just Tango Banner" />
+          <img src="/JustTango3.jpg" className="App-banner" alt="Just Tango Banner" />
           <h1>Welcome to Tango Calendar</h1>
         </header>
         <div className="app-content">
