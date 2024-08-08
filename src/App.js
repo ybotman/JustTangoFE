@@ -1,38 +1,35 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 
-
-//FullCalendar imports
+// FullCalendar imports
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import rrulePlugin from '@fullcalendar/rrule'
+import rrulePlugin from '@fullcalendar/rrule';
 
-//component imports
+// Component imports
 import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
-//import OrganizerFilter from './components/OrganizerFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
 import { useHandlers } from "./components/HandlerProvider";
 import { useFetchData } from './hooks/useFetchData';
 import { useFetchDataEvents } from './hooks/useFetchDataEvents';
 import { useEventAPIHandlers } from './hooks/useEventAPIHandlers';
 
-
-//import from ./modals ;
+// Modal imports
 import LoginModal from './modals/LoginModal';
 import EventFormModal from './modals/EventFormModal';
 import AdvancedFilterModal from './modals/AdvancedFilterModal';
 
-//Material User Interfae (MUI) Imports
+// MUI Imports
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import { Box, IconButton, } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import EditCalendarIcon from '@mui/icons-material/EditCalendar';
 import CalendarIcon from '@mui/icons-material/CalendarToday';
-
 import SettingsIcon from '@mui/icons-material/Settings';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -41,27 +38,19 @@ import './customStyles.css';
 import './calendarStyles.css';
 import './App.css';
 
-/**********************  The APP  *******************/
-
 function App() {
-
-
-  /**********************  State Declarations useState *******************/
+  // State Declarations useState
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState('');
-  // [clickedDate, setClickedDate] = useState('');
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, Festival: true, Class: true, Beginner: true });
   const calendarRef = useRef(null);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [userRole, setUserRole] = useState("User");
   const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  //const [ownerOrganizerId, setOwnerOrganizerId] = useState(authenticated_organizerID);
   const { categories, organizers } = useFetchData();
-  // const { handleEventFormPut, handleEventFormPost, handleDeleteEvent, } = useEventAPIHandlers(events, setEvents);
-
-  // const { events, setEvents } = useFetchDataEvents(userRole, organizerId);
+  const { events, setEvents } = useFetchDataEvents(userRole);
 
   const categoryBackgroundColors = {
     Milonga: "dodgerblue",
@@ -71,7 +60,6 @@ function App() {
     Class: "lavender",
     Beginner: "wheat",
   };
-
 
   const toggleEditMode = () => {
     setIsEditMode((prevEditMode) => !prevEditMode);
@@ -87,10 +75,7 @@ function App() {
     console.log('toggleAdvancedFilterModal:', !showAdvancedFilterModal);
   };
 
-  /**********************  handle Functions  **********************/
-
-  const { events, setEvents } = useFetchDataEvents(userRole);
-
+  // handle Functions
   const {
     handleEventFormPut,
     handleEventFormPost,
@@ -98,7 +83,6 @@ function App() {
     clickedDate,
     setClickedDate,
   } = useEventAPIHandlers(events, setEvents);
-
 
   const handleFilterChange = (category) => {
     setActiveFilters((prevFilters) => ({
@@ -112,27 +96,24 @@ function App() {
     handleDateClick,
     handleRoleChange,
     handleViewChange,
-    //  handleFilterChange,
     handlePrevButtonClick,
     handleTodayButtonClick,
     handleNextButtonClick
   } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters);
 
   const handleAdvancedFilterApply = (filters) => {
-    // You can implement your advanced filter logic here, using the filters object
     console.log('Advanced filter applied:', filters);
   };
 
-
-  /********************** Theme and Render functions  ***************/
+  // Theme and Render functions
   const customTheme = createTheme({
     components: {
       MuiSwitch: {
         styleOverrides: {
-          root: { width: '40px', height: '24px', padding: '4px', },
-          switchBase: { padding: '4px', },
-          thumb: { width: '16px', height: '16px', },
-          track: { borderRadius: '20px', opacity: 1, },
+          root: { width: '40px', height: '24px', padding: '4px' },
+          switchBase: { padding: '4px' },
+          thumb: { width: '16px', height: '16px' },
+          track: { borderRadius: '20px', opacity: 1 },
         },
       },
       MuiFormControlLabel: {
@@ -145,7 +126,6 @@ function App() {
     },
   });
 
-
   const transformedEvents = (events) => {
     return events.map((event) => {
       if (event.recurrence_rule && event.recurrence_rule.trim() === "") {
@@ -153,24 +133,23 @@ function App() {
       }
 
       return {
-        id: event.id,
+        id: event._id,
         title: event.title,
         start: event.startDate,
         end: event.endDate,
-        rrule: event.recurrence_rule,
+        rrule: event.recurrenceRule,
         extendedProps: {
-          primary_category: event.category,
-          secondary_category: event.category_alternate,
-          tri_category: event.tri_category,
-          organizer: event.organizer,
-          location: event.location,
-          owner_organizerId: event.ownerOrganizer,
+          primary_category: event.categoryFirst,
+          secondary_category: event.categorySecond,
+          tri_category: event.categoryThird,
+          organizer: event.eventOrganizerID,
+          location: event.locationID,
+          owner_organizerId: event.ownerOrganizerID,
           standard_name: event.standardsTitle,
         },
       };
     });
   };
-
 
   const renderEventContent = (eventInfo) => {
     const category = eventInfo.event.extendedProps.primary_category;
@@ -199,14 +178,11 @@ function App() {
     );
   };
 
-  //******************************* useEffects ****************** /
+  // useEffects
   useEffect(() => {
     if (calendarRef.current) {
       calendarRef.current.getApi().render();
     }
-  }, [activeFilters]);
-
-  useEffect(() => {
   }, [activeFilters]);
 
   useEffect(() => {
@@ -216,7 +192,6 @@ function App() {
 
     setFilteredEvents(filtered);
   }, [activeFilters, events]);
-
 
   useEffect(() => {
     if (userRole === "User") {
@@ -234,6 +209,7 @@ function App() {
     calendar.render();
   }, [events]);
 
+
   //******************************* R E T U R N ******************/
   return (
     <ThemeProvider theme={customTheme}>
@@ -244,7 +220,7 @@ function App() {
         </header>
         <div className="app-content">
           <EventFormModal
-            open={showEventFormModal}
+            show={showEventFormModal}
             onHide={() => setShowEventFormModal(false)}
             onPost={handleEventFormPost}
             onPut={handleEventFormPut}
@@ -254,109 +230,101 @@ function App() {
             clickedDate={clickedDate}
           />
           <LoginModal
-            open={showLoginModal}
+            show={showLoginModal}
             onClose={toggleLoginModal}
           />
           <AdvancedFilterModal
-            open={showAdvancedFilterModal}
+            show={showAdvancedFilterModal}
             onHide={toggleAdvancedFilterModal}
             onApply={handleAdvancedFilterApply}
             organizers={organizers}
           />
-
-          {/* ***TOP MENU*** */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            {/* ***NAVIGATION*** */}
-            <Box>
-              <CalendarDateNavigation
-                handlePrevButtonClick={handlePrevButtonClick}
-                handleTodayButtonClick={handleTodayButtonClick}
-                handleNextButtonClick={handleNextButtonClick}
-              />
-            </Box>
-            {/* ***CAT FILTER*** */}
-            <Box>
-              <CategoryFilter
-                categories={categories}
-                activeFilters={activeFilters}
-                handleFilterChange={handleFilterChange}
-                setActiveFilters={setActiveFilters}
-                categoryColors={categoryBackgroundColors}
-              />
-            </Box>
-            {/* ***ROLE ICON*** */}
-            <Box>
-
-              {userRole === "Admin" && (
-                <Box>
-                  <IconButton onClick={() => handleRoleChange("User")} sx={{ color: 'Red' }}>
-                    <AdminPanelSettingsIcon />
-                  </IconButton>
-                  {isEditMode ? (
-                    <EditCalendarIcon onClick={toggleEditMode} sx={{ color: 'lightcoral' }} />
-                  ) : (
-                    <CalendarIcon onClick={toggleEditMode} sx={{ color: 'lightgreen' }} />
-                  )}
-                </Box>
-
-              )}
-              {userRole === "Organizer" && (
-                <Box>
-                  <IconButton onClick={() => handleRoleChange("Admin")} sx={{ color: 'purple' }}>
-                    <SupervisedUserCircleIcon />
-                  </IconButton>
-                  {isEditMode ? (
-                    <EditCalendarIcon onClick={toggleEditMode} sx={{ color: 'lightcoral' }} />
-                  ) : (
-                    <CalendarIcon onClick={toggleEditMode} sx={{ color: 'lightgreen' }} />
-                  )}
-
-                </Box>
-              )}
-              {userRole === "User" && (
-                <Box>
-                  <IconButton
-                    onClick={() => handleRoleChange("Organizer")} sx={{ color: 'lightGreen' }}>
-                    <PersonIcon />
-                  </IconButton>
-                  <IconButton onClick={toggleAdvancedFilterModal} sx={{ color: 'lightcoral' }}>
-                    <FilterAltIcon />
-                  </IconButton>
-                  <IconButton sx={{ color: 'lightcoral' }}>
-                    <SettingsIcon />
-                  </IconButton>
-                </Box>
-              )}
-            </Box>
-            {/* ***Calendar View Change*** */}
-            <Box>
-              <CalendarViewSwitch view={calendarRef.current?.getApi().view.type} onChange={handleViewChange} />
-            </Box>
+        </div>
+        <div className="toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box display="flex" alignItems="center">
+            <CalendarDateNavigation
+              onPrevClick={handlePrevButtonClick}
+              onTodayClick={handleTodayButtonClick}
+              onNextClick={handleNextButtonClick}
+            />
           </Box>
-          {/* ***CALENDAR*** */}
+          <Box display="flex" alignItems="center">
+            <CategoryFilter
+              categories={categories}
+              activeFilters={activeFilters}
+              handleFilterChange={handleFilterChange}
+              categoryColors={categoryBackgroundColors}
+            />
+          </Box>
+          <Box display="flex" alignItems="center">
+            <CalendarViewSwitch view={calendarRef.current?.getApi().view.type} onChange={handleViewChange} />
+          </Box>
+          <Box display="flex" alignItems="center">
+            {userRole === "User" && (
+              <Box>
+                <IconButton
+                  onClick={() => handleRoleChange("Organizer")} sx={{ color: 'lightGreen' }}>
+                  <PersonIcon />
+                </IconButton>
+                <IconButton onClick={toggleAdvancedFilterModal} sx={{ color: 'lightcoral' }}>
+                  <FilterAltIcon />
+                </IconButton>
+                <IconButton sx={{ color: 'lightcoral' }}>
+                  <SettingsIcon />
+                </IconButton>
+              </Box>
+            )}
+            {userRole === "Organizer" && (
+              <Box>
+                <IconButton onClick={() => handleRoleChange("Admin")} sx={{ color: 'purple' }}>
+                  <SupervisedUserCircleIcon />
+                </IconButton>
+                {isEditMode ? (
+                  <EditCalendarIcon onClick={toggleEditMode} sx={{ color: 'lightcoral' }} />
+                ) : (
+                  <CalendarIcon onClick={toggleEditMode} sx={{ color: 'lightgreen' }} />
+                )}
+              </Box>
+            )}
+            {userRole === "Admin" && (
+              <Box>
+                <IconButton onClick={() => handleRoleChange("User")} sx={{ color: 'Red' }}>
+                  <AdminPanelSettingsIcon />
+                </IconButton>
+                {isEditMode ? (
+                  <EditCalendarIcon onClick={toggleEditMode} sx={{ color: 'lightcoral' }} />
+                ) : (
+                  <CalendarIcon onClick={toggleEditMode} sx={{ color: 'lightgreen' }} />
+                )}
+              </Box>
+            )}
+          </Box>
+        </div>
+        {/* ***CALENDAR*** */}
+        <div className="calendar-container">
           <FullCalendar
-            plugins={[
-              dayGridPlugin,
-              timeGridPlugin,
-              listPlugin,
-              interactionPlugin,
-              rrulePlugin,
-            ]}
-            headerToolbar={{ left: '', center: '', right: '', }}
-            nextDayThreshold='05:59:00'
-            ref={calendarRef}
-            initialView="dayGridMonth"
-            dateClick={handleDateClick}
-            eventClick={handleEventClick}
-            events={transformedEvents(filteredEvents)}
-            eventContent={({ event, el }) => {
-              return renderEventContent({ event });
+            plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, rrulePlugin]} // Include listPlugin here
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth' // Ensure listMonth is included here
             }}
+            initialView="dayGridMonth"
+            editable={isEditMode}
+            selectable={isEditMode}
+            selectMirror={true}
+            dayMaxEvents={true}
+            weekends={true}
+            events={transformedEvents(events)}
+            eventClick={handleEventClick}
+            dateClick={handleDateClick}
+            ref={calendarRef}
           />
         </div>
       </div>
-    </ThemeProvider >
+    </ThemeProvider>
   );
+  //end of return
 
 }
 
