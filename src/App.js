@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // FullCalendar imports
 import FullCalendar from '@fullcalendar/react';
@@ -90,6 +90,60 @@ function App() {
     }));
   };
 
+
+  const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters) => {
+    const [organizerId, setOrganizerId] = useState(null);
+
+    const { events, setEvents } = useFetchDataEvents(userRole, organizerId);
+
+    const handleEventClick = useCallback((event) => {
+      setSelectedEvent(event);
+      setShowEventFormModal(true);
+    }, [setSelectedEvent, setShowEventFormModal]);
+
+    const handleDateClick = useCallback((date) => {
+      setClickedDate(date);
+      setShowEventFormModal(true);
+    }, [setClickedDate, setShowEventFormModal]);
+
+    const handleRoleChange = useCallback((newRole) => {
+      setUserRole(newRole);
+      if (newRole === 'Organizer') {
+        setOrganizerId('6442ccb5f88a6c48aa30be36'); // Set your organizer ID here
+      } else {
+        setOrganizerId(null);
+      }
+    }, [setUserRole, setOrganizerId]);
+
+    const handleViewChange = useCallback((view) => {
+      calendarRef.current?.getApi().changeView(view);
+    }, [calendarRef]);
+
+    const handlePrevButtonClick = useCallback(() => {
+      calendarRef.current?.getApi().prev();
+    }, [calendarRef]);
+
+    const handleTodayButtonClick = useCallback(() => {
+      calendarRef.current?.getApi().today();
+    }, [calendarRef]);
+
+    const handleNextButtonClick = useCallback(() => {
+      calendarRef.current?.getApi().next();
+    }, [calendarRef]);
+
+    return {
+      events,
+      handleEventClick,
+      handleDateClick,
+      handleRoleChange,
+      handleViewChange,
+      handlePrevButtonClick,
+      handleTodayButtonClick,
+      handleNextButtonClick,
+      setEvents
+    };
+  };
+
   const {
     handleEventClick,
     handleDateClick,
@@ -97,7 +151,8 @@ function App() {
     handleViewChange,
     handlePrevButtonClick,
     handleTodayButtonClick,
-    handleNextButtonClick
+    handleNextButtonClick,
+    //    events
   } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters);
 
   const handleAdvancedFilterApply = (filters) => {
@@ -315,6 +370,7 @@ function App() {
             weekends={true}
             events={transformedEvents(events)}
             eventClick={handleEventClick}
+            eventContent={renderEventContent}
             dateClick={handleDateClick}
             ref={calendarRef}
           />
