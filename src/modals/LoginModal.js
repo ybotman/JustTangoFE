@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-function LoginModal({ show, onClose }) {
+function LoginModal({ open, onClose }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -24,7 +24,7 @@ function LoginModal({ show, onClose }) {
   };
 
   return (
-    <Modal show={show} onHide={onClose}>
+    <Modal open={open} onHide={onClose}>
       <Modal.Header closeButton>
         <Modal.Title>Organizer Login</Modal.Title>
       </Modal.Header>

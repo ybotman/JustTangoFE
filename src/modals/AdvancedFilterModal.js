@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Modal, Box, List, ListItem, ListItemText, Checkbox, FormControl, Button, InputLabel } from "@mui/material";
-
 import { styled } from "@mui/system";
 import styles from './AdvancedFilterModal.css';
 
@@ -13,12 +12,11 @@ const ModalContent = styled('div')({
     padding: '1rem',
     borderRadius: '5px',
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.25)',
-    width: '600px',  // Adjust the width as needed
-    maxWidth: '90vw',  // Ensure it doesn't exceed viewport width
+    //  width: '600px',  // Adjust the width as needed
+    //  maxWidth: '90vw',  // Ensure it doesn't exceed viewport width
 });
 
-
-const AdvancedFilterModal = ({ show, onHide, organizers = [], onApply }) => {
+const AdvancedFilterModal = ({ open, onHide, organizers = [], onApply }) => {
     const [selectedOrganizers, setSelectedOrganizers] = useState([]);
 
     const handleToggle = (orgId) => {
@@ -40,15 +38,15 @@ const AdvancedFilterModal = ({ show, onHide, organizers = [], onApply }) => {
     };
 
     return (
-        <Modal open={show} onClose={onHide}>
+        <Modal open={open} onClose={onHide}>
             <ModalContent>
                 <FormControl className={styles.modalWrapper}>
                     <InputLabel htmlFor="organizer-select">Organizers</InputLabel>
                     <List style={{ marginTop: 30 }}>
-                        {organizers.map((org) => {
-                            const labelId = `checkbox-list-label-${org.id}`;
+                        {organizers.map((org, index) => {
+                            const labelId = `checkbox-list-label-${org.id || index}`;
                             return (
-                                <ListItem key={org.id} role={undefined} dense button onClick={() => handleToggle(org.id)}>
+                                <ListItem key={org.id || index} role={undefined} dense button onClick={() => handleToggle(org.id)}>
                                     <Checkbox
                                         edge="start"
                                         checked={selectedOrganizers.indexOf(org.id) !== -1}
@@ -56,7 +54,7 @@ const AdvancedFilterModal = ({ show, onHide, organizers = [], onApply }) => {
                                         disableRipple
                                         inputProps={{ 'aria-labelledby': labelId }}
                                     />
-                                    <ListItemText id={labelId} primary={org.name} />
+                                    <ListItemText id={labelId} primary={org.organizerName} />
                                 </ListItem>
                             );
                         })}

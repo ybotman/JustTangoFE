@@ -99,12 +99,20 @@ function App() {
     setClickedDate,
   } = useEventAPIHandlers(events, setEvents);
 
+
+  const handleFilterChange = (category) => {
+    setActiveFilters((prevFilters) => ({
+      ...prevFilters,
+      [category]: !prevFilters[category]
+    }));
+  };
+
   const {
     handleEventClick,
     handleDateClick,
     handleRoleChange,
     handleViewChange,
-    handleFilterChange,
+    //  handleFilterChange,
     handlePrevButtonClick,
     handleTodayButtonClick,
     handleNextButtonClick
@@ -147,17 +155,17 @@ function App() {
       return {
         id: event.id,
         title: event.title,
-        start: event.start,
-        end: event.end,
+        start: event.startDate,
+        end: event.endDate,
         rrule: event.recurrence_rule,
         extendedProps: {
-          primary_category: event.primary_category,
-          secondary_category: event.secondary_category,
+          primary_category: event.category,
+          secondary_category: event.category_alternate,
           tri_category: event.tri_category,
           organizer: event.organizer,
           location: event.location,
-          owner_organizerId: event.owner_organizerId,
-          standard_name: event.standard_name,
+          owner_organizerId: event.ownerOrganizer,
+          standard_name: event.standardsTitle,
         },
       };
     });
@@ -231,12 +239,12 @@ function App() {
     <ThemeProvider theme={customTheme}>
       <div className="App">
         <header className="App-header">
-          <img src="/JustTango3.jpg" className="App-banner" alt="Just Tango Banner" />
-          <h1>Welcome to Tango Calendar</h1>
+          <img src="/JustTango2.jpg" className="App-banner" alt="Just Tango Banner" />
+          <h1>Welcome to TC</h1>
         </header>
         <div className="app-content">
           <EventFormModal
-            show={showEventFormModal}
+            open={showEventFormModal}
             onHide={() => setShowEventFormModal(false)}
             onPost={handleEventFormPost}
             onPut={handleEventFormPut}
@@ -246,15 +254,14 @@ function App() {
             clickedDate={clickedDate}
           />
           <LoginModal
-            show={showLoginModal}
+            open={showLoginModal}
             onClose={toggleLoginModal}
           />
           <AdvancedFilterModal
-            show={showAdvancedFilterModal}
+            open={showAdvancedFilterModal}
             onHide={toggleAdvancedFilterModal}
             onApply={handleAdvancedFilterApply}
             organizers={organizers}
-
           />
 
           {/* ***TOP MENU*** */}
