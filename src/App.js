@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 
 // FullCalendar imports
@@ -208,7 +207,6 @@ function App() {
 
     calendar.render();
   }, [events]);
-
 
   //******************************* R E T U R N ******************/
   return (
