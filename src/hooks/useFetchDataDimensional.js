@@ -1,7 +1,7 @@
-// hooks/useFetchData.js
+// hooks/useFetchDataDimensional.js
 import { useEffect, useState } from 'react';
 
-export const useFetchData = () => {
+export const useFetchDataDimensional = () => {
     const [categories, setCategories] = useState([]);
     const [organizers, setOrganizers] = useState([]);
     const [events, setEvents] = useState([]);

@@ -13,7 +13,7 @@ import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
 import { useHandlers } from "./components/HandlerProvider";
-import { useFetchData } from './hooks/useFetchData';
+import { useFetchDataDimensional } from './hooks/useFetchDataDimensional';
 import { useFetchDataEvents } from './hooks/useFetchDataEvents';
 import { useEventAPIHandlers } from './hooks/useEventAPIHandlers';
 
@@ -48,7 +48,7 @@ function App() {
   const [userRole, setUserRole] = useState("User");
   const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const { categories, organizers } = useFetchData();
+  const { categories, organizers } = useFetchDataDimensional();
   const { events, setEvents } = useFetchDataEvents(userRole);
 
   const categoryBackgroundColors = {
@@ -206,20 +206,41 @@ function App() {
   };
 
   const renderEventContent = (eventInfo) => {
-    const category = eventInfo.event.extendedProps.primary_category;
+    const category = eventInfo.event.extendedProps.categoryFirst;
+
+
+    console.log('Render Event Content:', {
+      id: eventInfo.event.id,
+      title: eventInfo.event.title,
+      start: eventInfo.event.start,
+      end: eventInfo.event.end,
+      categoryFirst: eventInfo.event.extendedProps.categoryFirst,
+      categorySecond: eventInfo.event.extendedProps.categorySecond,
+      categoryThird: eventInfo.event.extendedProps.categoryThird,
+      organizer: eventInfo.event.extendedProps.organizer,
+      location: eventInfo.event.extendedProps.location,
+      ownerOrganizerID: eventInfo.event.extendedProps.ownerOrganizerID,
+      standardsTitle: eventInfo.event.extendedProps.standardsTitle,
+      recurrenceRule: eventInfo.event.extendedProps.recurrenceRule,
+      active: eventInfo.event.extendedProps.active,
+      featured: eventInfo.event.extendedProps.featured,
+      cost: eventInfo.event.extendedProps.cost,
+      eventDescription: eventInfo.event.extendedProps.eventDescription,
+      eventImage: eventInfo.event.extendedProps.eventImage,
+    });
 
     let textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
 
     const backgroundColor = categoryBackgroundColors[category];
 
     switch (category) {
-      case "Milonga": textColor = "white"; fontWeight = "normal"; fontSize = "smaller"; break;
-      case "Practica": textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; break;
-      case "Workshop": textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; break;
-      case "Festival": textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; borderColor = 'Yellow'; break;
-      case "Class": textColor = "black"; fontWeight = "normal"; fontSize = "smaller"; break;
-      case "Beginner": textColor = "grey"; fontStyle = "italic"; fontWeight = "normal"; fontSize = "smaller"; break;
-      default: textColor = "lightgrey"; fontStyle = "italic"; fontSize = "smaller";
+      case "Milonga": textColor = "white"; fontWeight = "normal"; fontSize = "large"; break;
+      case "Practica": textColor = "black"; fontWeight = "normal"; fontSize = "large"; break;
+      case "Workshop": textColor = "black"; fontWeight = "normal"; fontSize = "large"; break;
+      case "Festival": textColor = "black"; fontWeight = "normal"; fontSize = "large"; borderColor = 'Yellow'; break;
+      case "Class": textColor = "black"; fontWeight = "normal"; fontSize = "large"; break;
+      case "Beginner": textColor = "grey"; fontStyle = "italic"; fontWeight = "large"; fontSize = "smaller"; break;
+      default: textColor = "lightgrey"; fontStyle = "italic"; fontSize = "large";
     }
 
     return (
@@ -368,6 +389,7 @@ function App() {
             selectMirror={true}
             dayMaxEvents={true}
             weekends={true}
+            //events={filteredEvents}//
             events={transformedEvents(events)}
             eventClick={handleEventClick}
             eventContent={renderEventContent}
