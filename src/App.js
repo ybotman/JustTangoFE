@@ -109,7 +109,7 @@ function App() {
     const handleRoleChange = useCallback((newRole) => {
       setUserRole(newRole);
       if (newRole === 'Organizer') {
-        setOrganizerId('6442ccb5f88a6c48aa30be36'); // Set your organizer ID here
+        setOrganizerId('6442ccb5f88a6c48aa30be35'); // Set your organizer ID here
       } else {
         setOrganizerId(null);
       }
@@ -182,24 +182,24 @@ function App() {
 
   const transformedEvents = (events) => {
     return events.map((event) => {
-      if (event.recurrence_rule && event.recurrence_rule.trim() === "") {
-        console.log("Invalid empty string in event:", event);
-      }
-
       return {
         id: event._id,
         title: event.title,
         start: event.startDate,
         end: event.endDate,
-        rrule: event.recurrenceRule,
+        rrule: event.recurrenceRule, // assuming you still want this field transformed
         extendedProps: {
-          primary_category: event.categoryFirst,
-          secondary_category: event.categorySecond,
-          tri_category: event.categoryThird,
-          organizer: event.eventOrganizerID,
-          location: event.locationID,
-          owner_organizerId: event.ownerOrganizerID,
-          standard_name: event.standardsTitle,
+          categoryFirst: event.categoryFirst,
+          categorySecond: event.categorySecond,
+          categoryThird: event.categoryThird,
+          eventOrganizerID: event.eventOrganizerID,
+          locationID: event.locationID,
+          ownerOrganizerID: event.ownerOrganizerID,
+          standardsTitle: event.standardsTitle,
+          eventDescription: event.eventDescription,
+          active: event.active,
+          featured: event.featured,
+          cost: event.cost,
         },
       };
     });
@@ -273,7 +273,7 @@ function App() {
         </header>
         <div className="app-content">
           <EventFormModal
-            show={showEventFormModal}
+            open={showEventFormModal}
             onHide={() => setShowEventFormModal(false)}
             onPost={handleEventFormPost}
             onPut={handleEventFormPut}
@@ -287,7 +287,7 @@ function App() {
             onClose={toggleLoginModal}
           />
           <AdvancedFilterModal
-            show={showAdvancedFilterModal}
+            open={showAdvancedFilterModal}
             onHide={toggleAdvancedFilterModal}
             onApply={handleAdvancedFilterApply}
             organizers={organizers}

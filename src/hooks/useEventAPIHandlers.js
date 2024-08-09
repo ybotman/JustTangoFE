@@ -5,7 +5,7 @@ export const useEventAPIHandlers = (events, setEvents) => {
 
     const [clickedDate, setClickedDate] = useState('');
 
-    const organizerId = 1; // Replace this with the actual organizer ID
+    //const organizerId = 1; // Replace this with the actual organizer ID
 
     const handleEventFormPut = async (updatedEvent) => {
         console.log("PUT eventData:", updatedEvent);
@@ -19,13 +19,13 @@ export const useEventAPIHandlers = (events, setEvents) => {
                 },
                 body: JSON.stringify({
                     ...eventData,
-                    category: eventData.primary_category,
-                    secondary_category: eventData.secondary_category,
-                    tri_category: eventData.tri_category,
-                    organizer: eventData.organizer,
-                    location: eventData.location,
+                    categoryFirst: eventData.categoryFirst,
+                    categorySecond: eventData.categorySecond,
+                    categoryThird: eventData.categoryThird,
+                    eventOrganizerID: eventData.eventOrganizerID,
+                    locationID: eventData.locationID,
                     recurrence_rule: eventData.recurrence_rule && eventData.recurrence_rule.trim() !== "" ? eventData.recurrence_rule : null,
-                    owner_organizerId: organizerId,  // need to fix
+                    ownerOrganizerID: eventData.ownerOrganizerID,  // need to fix
                 }),
             });
 
@@ -48,13 +48,13 @@ export const useEventAPIHandlers = (events, setEvents) => {
             },
             body: JSON.stringify({
                 ...eventData,
-                category: eventData.category,
-                secondary_category: eventData.secondary_category,
-                tri_category: eventData.tri_category,
-                organizer: eventData.organizer,
-                location: eventData.location,
+                categoryFirst: eventData.categoryFirst,
+                categorySecond: eventData.categorySecond,
+                categoryThird: eventData.categoryThird,
+                eventOrganizerID: eventData.eventOrganizerID,
+                locationID: eventData.locationID,
                 recurrence_rule: eventData.recurrence_rule && eventData.recurrence_rule.trim() !== "" ? eventData.recurrence_rule : null,
-                owner_organizerId: eventData.owner_organizerId,
+                ownerOrganizerID: eventData.ownerOrganizerID,  // need to fix
             }),
         });
 
