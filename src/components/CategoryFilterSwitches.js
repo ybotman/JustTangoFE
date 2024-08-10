@@ -6,7 +6,7 @@ function CategoryFilterSwitches({ categories, activeFilters, handleFilterChange,
         handleFilterChange(category);
     };
 
-    console.log('Updated filters:', activeFilters);
+    console.log('CategoryFilterSwitches filters:', activeFilters);
 
     return (
         <ToggleButtonGroup exclusive aria-label="category filter">

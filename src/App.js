@@ -12,7 +12,7 @@ import rrulePlugin from '@fullcalendar/rrule';
 import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
-import { useHandlers } from "./components/HandlerProvider";
+//import { useHandlers } from "./components/HandlerProvider";
 import { useFetchDataDimensional } from './hooks/useFetchDataDimensional';
 import { useFetchDataEvents } from './hooks/useFetchDataEvents';
 import { useEventAPIHandlers } from './hooks/useEventAPIHandlers';
@@ -42,36 +42,36 @@ function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState('');
-  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, Festival: true, Class: true, Beginner: true });
+  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, Festival: true, Class: true, Trip: true });
   const calendarRef = useRef(null);
-  const [filteredEvents, setFilteredEvents] = useState([]);
   const [userRole, setUserRole] = useState("User");
   const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const { categories, organizers } = useFetchDataDimensional();
   const { events, setEvents } = useFetchDataEvents(userRole);
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
   const categoryBackgroundColors = {
     Milonga: "dodgerblue",
     Practica: "PowderBlue",
-    Workshop: "limegreen",
+    Workshop: "green",
     Festival: "plum",
-    Class: "lavender",
-    Beginner: "wheat",
-  };
+    Class: "lightGreen",
+    Trip: "wheat",
 
+  };
   const toggleEditMode = () => {
     setIsEditMode((prevEditMode) => !prevEditMode);
   };
 
   const toggleLoginModal = () => {
-    setShowLoginModal(!showLoginModal);
-    console.log('toggleLoginModal:', showLoginModal);
+    setShowLoginModal((prevShowLoginModal) => !prevShowLoginModal);
+    console.log('toggleLoginModal:', !showLoginModal);
   };
 
   const toggleAdvancedFilterModal = () => {
-    setShowAdvancedFilterModal(!showAdvancedFilterModal);
-    console.log('toggleAdvancedFilterModal:', !showAdvancedFilterModal);
+    setShowAdvancedFilterModal((prevShowAdvancedFilterModal) => !prevShowAdvancedFilterModal);
+    console.log('toggledAdvancedFilterModal:', !showAdvancedFilterModal);
   };
 
   // handle Functions
@@ -83,11 +83,13 @@ function App() {
     setClickedDate,
   } = useEventAPIHandlers(events, setEvents);
 
-  const handleFilterChange = (category) => {
+  const handleFilterChange = (categories) => {
     setActiveFilters((prevFilters) => ({
       ...prevFilters,
-      [category]: !prevFilters[category]
+      [categories]: !prevFilters[categories]
     }));
+
+
   };
 
 
@@ -182,12 +184,14 @@ function App() {
 
   const transformedEvents = (events) => {
     return events.map((event) => {
+      console.log('transforming : ', event.startDate, event.title);
+
       return {
         id: event._id,
         title: event.title,
         start: event.startDate,
         end: event.endDate,
-        rrule: event.recurrenceRule, // assuming you still want this field transformed
+        rrule: event.recurrenceRule,
         extendedProps: {
           categoryFirst: event.categoryFirst,
           categorySecond: event.categorySecond,
@@ -207,27 +211,7 @@ function App() {
 
   const renderEventContent = (eventInfo) => {
     const category = eventInfo.event.extendedProps.categoryFirst;
-
-
-    console.log('Render Event Content:', {
-      id: eventInfo.event.id,
-      title: eventInfo.event.title,
-      start: eventInfo.event.start,
-      end: eventInfo.event.end,
-      categoryFirst: eventInfo.event.extendedProps.categoryFirst,
-      categorySecond: eventInfo.event.extendedProps.categorySecond,
-      categoryThird: eventInfo.event.extendedProps.categoryThird,
-      organizer: eventInfo.event.extendedProps.organizer,
-      location: eventInfo.event.extendedProps.location,
-      ownerOrganizerID: eventInfo.event.extendedProps.ownerOrganizerID,
-      standardsTitle: eventInfo.event.extendedProps.standardsTitle,
-      recurrenceRule: eventInfo.event.extendedProps.recurrenceRule,
-      active: eventInfo.event.extendedProps.active,
-      featured: eventInfo.event.extendedProps.featured,
-      cost: eventInfo.event.extendedProps.cost,
-      eventDescription: eventInfo.event.extendedProps.eventDescription,
-      eventImage: eventInfo.event.extendedProps.eventImage,
-    });
+    console.log('Render Event:', eventInfo.event.title, ":", eventInfo.event.extendedProps.categoryFirst, eventInfo.event.extendedProps.categorySecond)
 
     let textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
 
@@ -235,11 +219,11 @@ function App() {
 
     switch (category) {
       case "Milonga": textColor = "white"; fontWeight = "normal"; fontSize = "large"; break;
-      case "Practica": textColor = "black"; fontWeight = "normal"; fontSize = "large"; break;
-      case "Workshop": textColor = "black"; fontWeight = "normal"; fontSize = "large"; break;
+      case "Practica": textColor = "black"; fontWeight = "normal"; fontSize = "Medium"; break;
+      case "Workshop": textColor = "black"; fontWeight = "Bold"; fontSize = "larger"; break;
       case "Festival": textColor = "black"; fontWeight = "normal"; fontSize = "large"; borderColor = 'Yellow'; break;
-      case "Class": textColor = "black"; fontWeight = "normal"; fontSize = "large"; break;
-      case "Beginner": textColor = "grey"; fontStyle = "italic"; fontWeight = "large"; fontSize = "smaller"; break;
+      case "Class": textColor = "black"; fontWeight = "normal"; fontSize = "Small"; break;
+      case "Trip": textColor = "grey"; fontStyle = "italic"; fontWeight = "Small"; fontSize = "smaller"; break;
       default: textColor = "lightgrey"; fontStyle = "italic"; fontSize = "large";
     }
 
@@ -256,17 +240,25 @@ function App() {
   // useEffects
   useEffect(() => {
     if (calendarRef.current) {
-      calendarRef.current.getApi().render();
+      setTimeout(() => {
+        calendarRef.current.getApi().render();
+      }, 0);
     }
   }, [activeFilters]);
-
   useEffect(() => {
-    const filtered = events.filter((event) => {
-      return activeFilters[event.primary_category];
+    const transformed = transformedEvents(events); // Transform first
+    const filtered = transformed.filter(event => {
+      return (
+        activeFilters[event.extendedProps.categoryFirst] ||
+        activeFilters[event.extendedProps.categorySecond] ||
+        activeFilters[event.extendedProps.categoryThird]
+      );
     });
 
     setFilteredEvents(filtered);
   }, [activeFilters, events]);
+
+
 
   useEffect(() => {
     if (userRole === "User") {
@@ -283,6 +275,11 @@ function App() {
 
     calendar.render();
   }, [events]);
+
+  //console.log("unfiltered Events:", events);
+  console.log("Filtered Events:", filteredEvents);
+  //console.log("transformed Events", transformedEvents(events));
+  //console.log("transformed Filter Events", transformedEvents(filteredEvents));
 
   //******************************* R E T U R N ******************/
   return (
@@ -377,11 +374,11 @@ function App() {
         {/* ***CALENDAR*** */}
         <div className="calendar-container">
           <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, rrulePlugin]} // Include listPlugin here
+            plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, rrulePlugin]}
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth' // Ensure listMonth is included here
+              right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
             }}
             initialView="dayGridMonth"
             editable={isEditMode}
@@ -389,8 +386,9 @@ function App() {
             selectMirror={true}
             dayMaxEvents={true}
             weekends={true}
-            //events={filteredEvents}//
-            events={transformedEvents(events)}
+            events={filteredEvents}
+            //events={transformedEvents(events)}
+            //events={transformedEvents(filteredEvents)}
             eventClick={handleEventClick}
             eventContent={renderEventContent}
             dateClick={handleDateClick}
