@@ -184,8 +184,13 @@ function App() {
 
   const transformedEvents = (events) => {
     return events.map((event) => {
+      if (event.recurrenceRule === "") {
+        console.warn("Invalid empty string in event recurrenceRule:", event);
+      }
+
       console.log('transforming : ', event.startDate, event.title);
 
+      const rrule = event.recurrenceRule ? event.recurrenceRule : null;
       return {
         id: event._id,
         title: event.title,
@@ -201,6 +206,7 @@ function App() {
           ownerOrganizerID: event.ownerOrganizerID,
           standardsTitle: event.standardsTitle,
           eventDescription: event.eventDescription,
+          recurrenceRule: event.rrule,
           active: event.active,
           featured: event.featured,
           cost: event.cost,
@@ -239,13 +245,16 @@ function App() {
 
   // useEffects
   useEffect(() => {
+    console.log("1. Rendering the Calendar after Filter Changes:")
     if (calendarRef.current) {
       setTimeout(() => {
         calendarRef.current.getApi().render();
       }, 0);
     }
   }, [activeFilters]);
+
   useEffect(() => {
+    console.log("2. Transforming and Filtering Events:")
     const transformed = transformedEvents(events); // Transform first
     const filtered = transformed.filter(event => {
       return (
@@ -259,14 +268,15 @@ function App() {
   }, [activeFilters, events]);
 
 
-
   useEffect(() => {
+    console.log("3. Adjusting Edit Mode Based on User Role:")
     if (userRole === "User") {
       setIsEditMode(false);  // force back to non-edit
     }
   }, [userRole]);
 
-  useEffect(() => {
+  /*useEffect(() => {
+    console.log("4. Initializing FullCalendar:")
     const calendarEl = document.getElementById('calendar');
     const calendar = new FullCalendar(calendarEl, {
       plugins: [rrulePlugin, dayGridPlugin],
@@ -275,11 +285,8 @@ function App() {
 
     calendar.render();
   }, [events]);
-
-  //console.log("unfiltered Events:", events);
-  console.log("Filtered Events:", filteredEvents);
-  //console.log("transformed Events", transformedEvents(events));
-  //console.log("transformed Filter Events", transformedEvents(filteredEvents));
+*/
+  // console.log("Filtered Events:", filteredEvents);
 
   //******************************* R E T U R N ******************/
   return (
@@ -387,8 +394,6 @@ function App() {
             dayMaxEvents={true}
             weekends={true}
             events={filteredEvents}
-            //events={transformedEvents(events)}
-            //events={transformedEvents(filteredEvents)}
             eventClick={handleEventClick}
             eventContent={renderEventContent}
             dateClick={handleDateClick}
