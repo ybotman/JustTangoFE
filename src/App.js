@@ -346,11 +346,9 @@ function App() {
         </div>
         <div className="toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box display="flex" alignItems="center">
-            <CalendarDateNavigation
-              onPrevClick={handlePrevButtonClick}
-              onTodayClick={handleTodayButtonClick}
-              onNextClick={handleNextButtonClick}
-            />
+            <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0', backgroundColor: '#f9f9f9' }}>
+              Acitve and Select Region
+            </div>
           </Box>
           <Box display="flex" alignItems="center">
             <CategoryFilter
