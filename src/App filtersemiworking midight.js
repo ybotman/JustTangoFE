@@ -39,7 +39,7 @@ import './App.css';
 
 function App() {
 
-  console.log("            --> function App() {...");
+  console.log("Initallized. Called --> function App() {...");
   // State Declarations useState
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
@@ -188,7 +188,7 @@ function App() {
       if (event.recurrenceRule === "") {
         console.warn("Invalid empty string in event recurrenceRule:", event);
       }
-      console.log('Transform Event:')
+      console.log('Transform Event:', event.title)
       //const rrule = event.recurrenceRule ? event.recurrenceRule : null;
       return {
         id: event._id,
@@ -215,21 +215,18 @@ function App() {
   };
 
   const renderEventContent = (eventInfo) => {
-    const category1 = eventInfo.event.extendedProps.categoryFirst;
-    const description = eventInfo.event.extendedProps.eventDescription || '';
-    const shortDescription = description.length > 20 ? description.slice(0, 20) + '...' : description;
-
-    console.log('const renderEventContent :')//, eventInfo.event.title, ":", eventInfo.event.extendedProps.categoryFirst, eventInfo.event.extendedProps.categorySecond)
+    const category = eventInfo.event.extendedProps.categoryFirst;
+    console.log('Call Render Event:', eventInfo.event.title, ":", eventInfo.event.extendedProps.categoryFirst, eventInfo.event.extendedProps.categorySecond)
 
     let textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
 
-    const backgroundColor = categoryBackgroundColors[category1];
+    const backgroundColor = categoryBackgroundColors[category];
 
-    switch (category1) {
+    switch (category) {
       case "Milonga": textColor = "white"; fontWeight = "normal"; fontSize = "large"; break;
       case "Practica": textColor = "black"; fontWeight = "normal"; fontSize = "Medium"; break;
       case "Workshop": textColor = "black"; fontWeight = "Bold"; fontSize = "larger"; break;
-      case "Festival": textColor = "black"; fontWeight = "normal"; fontSize = "large"; borderColor = 'Red'; break;
+      case "Festival": textColor = "black"; fontWeight = "normal"; fontSize = "large"; borderColor = 'Yellow'; break;
       case "Class": textColor = "black"; fontWeight = "normal"; fontSize = "Small"; break;
       case "Trip": textColor = "grey"; fontStyle = "italic"; fontWeight = "Small"; fontSize = "smaller"; break;
       default: textColor = "lightgrey"; fontStyle = "italic"; fontSize = "large";
@@ -241,22 +238,12 @@ function App() {
         fontSize, borderWidth, borderStyle, borderColor
       }}>
         {eventInfo.event.title}
-        <div
-          style={{
-            fontSize: '0.75em', // Smaller font size
-            color: 'gray', // Gray text color
-            backgroundColor: 'transparent', // No background
-            marginTop: '4px', // Small space between title and description
-          }}
-        >
-          {shortDescription}
-        </div>
       </div>
     );
   };
   // UseEffects
   useEffect(() => {
-    console.log("1. useEffect Rendering the Calendar after Filter Changes:");
+    console.log("1. Rendering the Calendar after Filter Changes:");
     if (calendarRef.current) {
       setTimeout(() => {
         calendarRef.current.getApi().refetchEvents(); // More efficient than render
@@ -266,25 +253,24 @@ function App() {
 
 
   useEffect(() => {
-    console.log("2. useEffect Transforming and Filtering Events:");
+    console.log("2. Transforming and Filtering Events:");
 
     // Transform the raw events into the FullCalendar-compatible structure
     const transformed = transformedEvents(events); // Transform first
-    console.log(" ... useEffect  const transformed = ");
+    console.log("Transformed Events:", transformed);
 
     // Filter the transformed events based on the active filters
     const filtered = transformed.filter(event => {
-
-      console.log(" ... useEffect  const filtered = transformed.filter:");
       const match = (
         activeFilters[event.extendedProps.categoryFirst] ||
         activeFilters[event.extendedProps.categorySecond] ||
         activeFilters[event.extendedProps.categoryThird]
       );
-      // console.log("Event:", event.title, "Match:", match);
+      console.log("Event:", event.title, "Match:", match);
       return match;
     });
 
+    console.log("Filtered Events:", filtered);
 
     // Update the filteredEvents state with the result
     setFilteredEvents(filtered);
@@ -409,7 +395,7 @@ function App() {
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, rrulePlugin]}
             headerToolbar={{
-              left: 'prev,today,next',
+              left: 'prev,next today',
               center: 'title',
               right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
             }}
