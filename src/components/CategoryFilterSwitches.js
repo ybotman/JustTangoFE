@@ -6,7 +6,7 @@ function CategoryFilterSwitches({ categories, activeFilters, handleFilterChange,
         handleFilterChange(category);
     };
 
-    console.log('CategoryFilterSwitches filters:', activeFilters);
+    console.log('Called --> CategoryFilterSwitches with:', activeFilters);
 
     return (
         <ToggleButtonGroup exclusive aria-label="category filter">
@@ -20,7 +20,7 @@ function CategoryFilterSwitches({ categories, activeFilters, handleFilterChange,
                         selected={!!activeFilters[categoryValue]}
                         onClick={() => {
                             handleChange(categoryValue);
-                            console.log('CategoryFilterSwitches.ToggleButton.onChange:', categoryValue);
+                            console.log('Clicked : CategoryFilterSwitches.ToggleButton.onChange:', categoryValue);
                         }}
                         sx={{
                             minWidth: 'auto',

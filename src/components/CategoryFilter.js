@@ -2,7 +2,7 @@ import React from 'react';
 import CategoryFilterSwitches from './CategoryFilterSwitches';
 
 function CategoryFilter({ categories, activeFilters, handleFilterChange, setActiveFilters, categoryColors }) {
-    console.log("CategoryFilter")
+    console.log("Called --> CategoryFilter")
     return (
         <CategoryFilterSwitches
             categories={categories}

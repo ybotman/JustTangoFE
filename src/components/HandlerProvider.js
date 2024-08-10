@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 export const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters) => {
     const handleEventClick = useCallback((info) => {
         if (userRole === "Organizer") {
+            console.log(" -->ORG");
             // Existing functionality for Organizer
             setSelectedEvent(info.event);
             if (isEditMode) {
@@ -11,11 +12,13 @@ export const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEvent
         }
 
         if (userRole === "Admin") {
+            console.log(" -->ADM");
             setSelectedEvent(info.event);
             setShowEventFormModal(true);
         }
 
         if (userRole === "User") {
+            console.log(" -->USR");
             setSelectedEvent(info.event);
         }
         console.log(userRole, "Clicked on Event:", info.event);
@@ -48,7 +51,7 @@ export const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEvent
 
     const handleViewChange = useCallback((viewType) => {
         calendarRef.current.getApi().changeView(viewType);
-        console.log('viewChanged:', viewType);
+        console.log('       Button   viewChanged:', viewType);
     }, [calendarRef]);
 
 
@@ -58,7 +61,7 @@ export const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEvent
             ...prevFilters,
             [category]: !prevFilters[category],
         }));
-        console.log('handleFilterChange:', category);
+        console.log('       Button handleFilterChange:', category);
     }, [setActiveFilters]);
 
 

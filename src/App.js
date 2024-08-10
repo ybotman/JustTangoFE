@@ -38,6 +38,8 @@ import './calendarStyles.css';
 import './App.css';
 
 function App() {
+
+  console.log("Initallized. Called --> function App() {...");
   // State Declarations useState
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
@@ -88,7 +90,6 @@ function App() {
       ...prevFilters,
       [categories]: !prevFilters[categories]
     }));
-
 
   };
 
@@ -187,10 +188,8 @@ function App() {
       if (event.recurrenceRule === "") {
         console.warn("Invalid empty string in event recurrenceRule:", event);
       }
-
-      console.log('transforming : ', event.startDate, event.title);
-
-      const rrule = event.recurrenceRule ? event.recurrenceRule : null;
+      console.log('Transform Event:', event.title)
+      //const rrule = event.recurrenceRule ? event.recurrenceRule : null;
       return {
         id: event._id,
         title: event.title,
@@ -217,7 +216,7 @@ function App() {
 
   const renderEventContent = (eventInfo) => {
     const category = eventInfo.event.extendedProps.categoryFirst;
-    console.log('Render Event:', eventInfo.event.title, ":", eventInfo.event.extendedProps.categoryFirst, eventInfo.event.extendedProps.categorySecond)
+    console.log('Call Render Event:', eventInfo.event.title, ":", eventInfo.event.extendedProps.categoryFirst, eventInfo.event.extendedProps.categorySecond)
 
     let textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
 
@@ -242,50 +241,63 @@ function App() {
       </div>
     );
   };
-
-  // useEffects
+  // UseEffects
   useEffect(() => {
-    console.log("1. Rendering the Calendar after Filter Changes:")
+    console.log("1. Rendering the Calendar after Filter Changes:");
     if (calendarRef.current) {
       setTimeout(() => {
-        calendarRef.current.getApi().render();
+        calendarRef.current.getApi().refetchEvents(); // More efficient than render
       }, 0);
     }
   }, [activeFilters]);
 
+
   useEffect(() => {
-    console.log("2. Transforming and Filtering Events:")
+    console.log("2. Transforming and Filtering Events:");
+
+    // Transform the raw events into the FullCalendar-compatible structure
     const transformed = transformedEvents(events); // Transform first
+    console.log("Transformed Events:", transformed);
+
+    // Filter the transformed events based on the active filters
     const filtered = transformed.filter(event => {
-      return (
+      const match = (
         activeFilters[event.extendedProps.categoryFirst] ||
         activeFilters[event.extendedProps.categorySecond] ||
         activeFilters[event.extendedProps.categoryThird]
       );
+      console.log("Event:", event.title, "Match:", match);
+      return match;
     });
 
+    console.log("Filtered Events:", filtered);
+
+    // Update the filteredEvents state with the result
     setFilteredEvents(filtered);
   }, [activeFilters, events]);
 
 
+
   useEffect(() => {
-    console.log("3. Adjusting Edit Mode Based on User Role:")
+    console.log("3. Adjusting Edit Mode Based on User Role:");
     if (userRole === "User") {
-      setIsEditMode(false);  // force back to non-edit
+      setIsEditMode(false);  // Force back to non-edit mode
     }
   }, [userRole]);
 
-  /*useEffect(() => {
-    console.log("4. Initializing FullCalendar:")
+  // Optional: Initialize FullCalendar if needed
+  /*
+  useEffect(() => {
+    console.log("4. Initializing FullCalendar:");
     const calendarEl = document.getElementById('calendar');
     const calendar = new FullCalendar(calendarEl, {
       plugins: [rrulePlugin, dayGridPlugin],
       events,
     });
-
+  
     calendar.render();
   }, [events]);
-*/
+  */
   // console.log("Filtered Events:", filteredEvents);
 
   //******************************* R E T U R N ******************/
