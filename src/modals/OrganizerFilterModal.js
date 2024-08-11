@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Box, List, ListItem, ListItemText, Checkbox, FormControl, Button, InputLabel } from "@mui/material";
 import { styled } from "@mui/system";
-import styles from './AdvancedFilterModal.css';
+import styles from './OrganizerFilterModal.css';
 
 const ModalContent = styled('div')({
     position: 'absolute',
@@ -12,11 +12,10 @@ const ModalContent = styled('div')({
     padding: '1rem',
     borderRadius: '5px',
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.25)',
-    //  width: '600px',  // Adjust the width as needed
-    //  maxWidth: '90vw',  // Ensure it doesn't exceed viewport width
+
 });
 
-const AdvancedFilterModal = ({ open, onHide, organizers = [], onApply }) => {
+const OrganizerFilterModal = ({ open, onHide, organizers = [], onApply }) => {
     const [selectedOrganizers, setSelectedOrganizers] = useState([]);
 
     const handleToggle = (orgId) => {
@@ -68,4 +67,4 @@ const AdvancedFilterModal = ({ open, onHide, organizers = [], onApply }) => {
     );
 };
 
-export default AdvancedFilterModal;
+export default OrganizerFilterModal;

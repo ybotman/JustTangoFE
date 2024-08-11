@@ -20,7 +20,7 @@ export const useFetchDataDimensional = () => {
 
     const fetchOrganizers = async () => {
         try {
-            const response = await fetch('/api/organizers');
+            const response = await fetch('/api/organizersActive');
             const data = await response.json();
             setOrganizers(data);
         } catch (error) {

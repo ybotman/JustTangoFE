@@ -9,7 +9,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import rrulePlugin from '@fullcalendar/rrule';
 
 // Component imports
-import CalendarDateNavigation from './components/CalendarDateNavigation';
+//import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
 //import { useHandlers } from "./components/HandlerProvider";
@@ -20,7 +20,7 @@ import { useEventAPIHandlers } from './hooks/useEventAPIHandlers';
 // Modal imports
 import LoginModal from './modals/LoginModal';
 import EventFormModal from './modals/EventFormModal';
-import AdvancedFilterModal from './modals/AdvancedFilterModal';
+import OrganizerFilterModal from './modals/OrganizerFilterModal';
 
 // MUI Imports
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
@@ -47,7 +47,7 @@ function App() {
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, Festival: true, Class: true, Trip: true });
   const calendarRef = useRef(null);
   const [userRole, setUserRole] = useState("User");
-  const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
+  const [showOrganizerFilterModal, setShowOrganizerFilterModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const { categories, organizers } = useFetchDataDimensional();
   const { events, setEvents } = useFetchDataEvents(userRole);
@@ -71,9 +71,9 @@ function App() {
     console.log('toggleLoginModal:', !showLoginModal);
   };
 
-  const toggleAdvancedFilterModal = () => {
-    setShowAdvancedFilterModal((prevShowAdvancedFilterModal) => !prevShowAdvancedFilterModal);
-    console.log('toggledAdvancedFilterModal:', !showAdvancedFilterModal);
+  const toggleOrganizerFilterModal = () => {
+    setShowOrganizerFilterModal((prevShowOrganizerFilterModal) => !prevShowOrganizerFilterModal);
+    console.log('toggledOrganizerFilterModal:', !showOrganizerFilterModal);
   };
 
   // handle Functions
@@ -152,13 +152,11 @@ function App() {
     handleDateClick,
     handleRoleChange,
     handleViewChange,
-    handlePrevButtonClick,
-    handleTodayButtonClick,
-    handleNextButtonClick,
+
     //    events
   } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters);
 
-  const handleAdvancedFilterApply = (filters) => {
+  const handleOrganizerFilterApply = (filters) => {
     console.log('Advanced filter applied:', filters);
   };
 
@@ -299,20 +297,6 @@ function App() {
     }
   }, [userRole]);
 
-  // Optional: Initialize FullCalendar if needed
-  /*
-  useEffect(() => {
-    console.log("4. Initializing FullCalendar:");
-    const calendarEl = document.getElementById('calendar');
-    const calendar = new FullCalendar(calendarEl, {
-      plugins: [rrulePlugin, dayGridPlugin],
-      events,
-    });
-  
-    calendar.render();
-  }, [events]);
-  */
-  // console.log("Filtered Events:", filteredEvents);
 
   //******************************* R E T U R N ******************/
   return (
@@ -337,10 +321,10 @@ function App() {
             show={showLoginModal}
             onClose={toggleLoginModal}
           />
-          <AdvancedFilterModal
-            open={showAdvancedFilterModal}
-            onHide={toggleAdvancedFilterModal}
-            onApply={handleAdvancedFilterApply}
+          <OrganizerFilterModal
+            open={showOrganizerFilterModal}
+            onHide={toggleOrganizerFilterModal}
+            onApply={handleOrganizerFilterApply}
             organizers={organizers}
           />
         </div>
@@ -368,7 +352,7 @@ function App() {
                   onClick={() => handleRoleChange("Organizer")} sx={{ color: 'lightGreen' }}>
                   <PersonIcon />
                 </IconButton>
-                <IconButton onClick={toggleAdvancedFilterModal} sx={{ color: 'lightcoral' }}>
+                <IconButton onClick={toggleOrganizerFilterModal} sx={{ color: 'lightcoral' }}>
                   <FilterAltIcon />
                 </IconButton>
                 <IconButton sx={{ color: 'lightcoral' }}>
