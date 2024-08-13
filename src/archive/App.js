@@ -23,12 +23,12 @@ import EventFormModal from './modals/EventFormModal';
 import OrganizerFilterModal from './modals/OrganizerFilterModal';
 
 // MUI Imports
-//import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
-//import PersonIcon from '@mui/icons-material/Person';
-//import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-//import EditCalendarIcon from '@mui/icons-material/EditCalendar';
-//import CalendarIcon from '@mui/icons-material/CalendarToday';
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
+import PersonIcon from '@mui/icons-material/Person';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Box, IconButton } from '@mui/material';
+import EditCalendarIcon from '@mui/icons-material/EditCalendar';
+import CalendarIcon from '@mui/icons-material/CalendarToday';
 import SettingsIcon from '@mui/icons-material/Settings';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -46,7 +46,7 @@ function App() {
   const [selectedEvent, setSelectedEvent] = useState('');
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, Festival: true, Class: true, Trip: true });
   const calendarRef = useRef(null);
-  const [userRole, setUserRole] = useState("GenericUser");
+  const [userRole, setUserRole] = useState("User");
   const [showOrganizerFilterModal, setShowOrganizerFilterModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const { categories, organizers } = useFetchDataDimensional();
@@ -62,10 +62,9 @@ function App() {
     Trip: "wheat",
 
   };
-
-  // const toggleEditMode = () => {
-  //   setIsEditMode((prevEditMode) => !prevEditMode);
-  // };
+  const toggleEditMode = () => {
+    setIsEditMode((prevEditMode) => !prevEditMode);
+  };
 
   const toggleLoginModal = () => {
     setShowLoginModal((prevShowLoginModal) => !prevShowLoginModal);
@@ -96,6 +95,9 @@ function App() {
 
 
   const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters) => {
+    const [organizerId, setOrganizerId] = useState(null);
+
+    const { events, setEvents } = useFetchDataEvents(userRole, organizerId);
 
     const handleEventClick = useCallback((event) => {
       setSelectedEvent(event);
@@ -107,15 +109,40 @@ function App() {
       setShowEventFormModal(true);
     }, [setClickedDate, setShowEventFormModal]);
 
+    const handleRoleChange = useCallback((newRole) => {
+      setUserRole(newRole);
+      if (newRole === 'Organizer') {
+        setOrganizerId('6442ccb5f88a6c48aa30be35'); // Set your organizer ID here
+      } else {
+        setOrganizerId(null);
+      }
+    }, [setUserRole, setOrganizerId]);
+
     const handleViewChange = useCallback((view) => {
       calendarRef.current?.getApi().changeView(view);
+    }, [calendarRef]);
+
+    const handlePrevButtonClick = useCallback(() => {
+      calendarRef.current?.getApi().prev();
+    }, [calendarRef]);
+
+    const handleTodayButtonClick = useCallback(() => {
+      calendarRef.current?.getApi().today();
+    }, [calendarRef]);
+
+    const handleNextButtonClick = useCallback(() => {
+      calendarRef.current?.getApi().next();
     }, [calendarRef]);
 
     return {
       events,
       handleEventClick,
       handleDateClick,
+      handleRoleChange,
       handleViewChange,
+      handlePrevButtonClick,
+      handleTodayButtonClick,
+      handleNextButtonClick,
       setEvents
     };
   };
@@ -123,7 +150,10 @@ function App() {
   const {
     handleEventClick,
     handleDateClick,
+    handleRoleChange,
     handleViewChange,
+
+    //    events
   } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters);
 
   const handleOrganizerFilterApply = (filters) => {
@@ -273,8 +303,8 @@ function App() {
     <ThemeProvider theme={customTheme}>
       <div className="App">
         <header className="App-header">
-          <img src="/TangoTiempo2.jpg" className="App-banner" alt="Tango Tiempo Banner" />
-          <h1>Welcome to Tango Tiempo</h1>
+          <img src="/JustTango2.jpg" className="App-banner" alt="Just Tango Banner" />
+          <h1>Welcome to TC</h1>
         </header>
         <div className="app-content">
           <EventFormModal
@@ -301,7 +331,7 @@ function App() {
         <div className="toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box display="flex" alignItems="center">
             <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0', backgroundColor: '#f9f9f9' }}>
-              Active and Select Region
+              Acitve and Select Region
             </div>
           </Box>
           <Box display="flex" alignItems="center">
@@ -316,12 +346,44 @@ function App() {
             <CalendarViewSwitch view={calendarRef.current?.getApi().view.type} onChange={handleViewChange} />
           </Box>
           <Box display="flex" alignItems="center">
-            <IconButton onClick={toggleOrganizerFilterModal} sx={{ color: 'lightcoral' }}>
-              <FilterAltIcon />
-            </IconButton>
-            <IconButton sx={{ color: 'lightcoral' }}>
-              <SettingsIcon />
-            </IconButton>
+            {userRole === "User" && (
+              <Box>
+                <IconButton
+                  onClick={() => handleRoleChange("Organizer")} sx={{ color: 'lightGreen' }}>
+                  <PersonIcon />
+                </IconButton>
+                <IconButton onClick={toggleOrganizerFilterModal} sx={{ color: 'lightcoral' }}>
+                  <FilterAltIcon />
+                </IconButton>
+                <IconButton sx={{ color: 'lightcoral' }}>
+                  <SettingsIcon />
+                </IconButton>
+              </Box>
+            )}
+            {userRole === "Organizer" && (
+              <Box>
+                <IconButton onClick={() => handleRoleChange("Admin")} sx={{ color: 'purple' }}>
+                  <SupervisedUserCircleIcon />
+                </IconButton>
+                {isEditMode ? (
+                  <EditCalendarIcon onClick={toggleEditMode} sx={{ color: 'lightcoral' }} />
+                ) : (
+                  <CalendarIcon onClick={toggleEditMode} sx={{ color: 'lightgreen' }} />
+                )}
+              </Box>
+            )}
+            {userRole === "Admin" && (
+              <Box>
+                <IconButton onClick={() => handleRoleChange("User")} sx={{ color: 'Red' }}>
+                  <AdminPanelSettingsIcon />
+                </IconButton>
+                {isEditMode ? (
+                  <EditCalendarIcon onClick={toggleEditMode} sx={{ color: 'lightcoral' }} />
+                ) : (
+                  <CalendarIcon onClick={toggleEditMode} sx={{ color: 'lightgreen' }} />
+                )}
+              </Box>
+            )}
           </Box>
         </div>
         {/* ***CALENDAR*** */}

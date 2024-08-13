@@ -13,6 +13,7 @@ import GroupIcon from '@mui/icons-material/Group';
 const OrganizerFilter = ({ organizers, onOrganizerChange }) => {
     const handleOrganizerChange = (organizerId, isChecked) => {
         onOrganizerChange(organizerId, isChecked);
+        console.log('OrgznierFilter component')
     };
 
     return (

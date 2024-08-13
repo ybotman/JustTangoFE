@@ -12,7 +12,6 @@ const ModalContent = styled('div')({
     padding: '1rem',
     borderRadius: '5px',
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.25)',
-
 });
 
 const OrganizerFilterModal = ({ open, onHide, organizers = [], onApply }) => {
@@ -48,12 +47,12 @@ const OrganizerFilterModal = ({ open, onHide, organizers = [], onApply }) => {
                                 <ListItem key={org.id || index} role={undefined} dense button onClick={() => handleToggle(org.id)}>
                                     <Checkbox
                                         edge="start"
-                                        checked={selectedOrganizers.indexOf(org.id) !== -1}
+                                        checked={selectedOrganizers.includes(org.id)}
                                         tabIndex={-1}
                                         disableRipple
                                         inputProps={{ 'aria-labelledby': labelId }}
                                     />
-                                    <ListItemText id={labelId} primary={org.organizerName} />
+                                    <ListItemText id={labelId} primary={org.organizerName} onClick={() => handleToggle(org.id)} />
                                 </ListItem>
                             );
                         })}
