@@ -7,6 +7,9 @@
 /.pnp
 .pnp.js
 
+# archives
+/src/archive/*
+
 # testing
 /coverage
 

@@ -9,10 +9,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 import rrulePlugin from '@fullcalendar/rrule';
 
 // Component imports
-//import CalendarDateNavigation from './components/CalendarDateNavigation';
 import CategoryFilter from './components/CategoryFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
-//import { useHandlers } from "./components/HandlerProvider";
 import { useFetchDataDimensional } from './hooks/useFetchDataDimensional';
 import { useFetchDataEvents } from './hooks/useFetchDataEvents';
 import { useEventAPIHandlers } from './hooks/useEventAPIHandlers';
@@ -22,35 +20,51 @@ import LoginModal from './modals/LoginModal';
 import EventFormModal from './modals/EventFormModal';
 import OrganizerFilterModal from './modals/OrganizerFilterModal';
 
-// MUI Imports
+import { Box, IconButton } from '@mui/material';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+
+import SettingsIcon from '@mui/icons-material/Settings';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+
+// old MUI Imports
 //import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 //import PersonIcon from '@mui/icons-material/Person';
 //import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 //import EditCalendarIcon from '@mui/icons-material/EditCalendar';
 //import CalendarIcon from '@mui/icons-material/CalendarToday';
-import { Box, IconButton } from '@mui/material';
-import SettingsIcon from '@mui/icons-material/Settings';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import './customStyles.css';
 import './calendarStyles.css';
 import './App.css';
 
+
 function App() {
 
   console.log("            --> function App() {...");
+
+
   // State Declarations useState
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
+  const [showOrganizerFilterModal, setShowOrganizerFilterModal] = useState(false);
+
+  const [userRole, setUserRole] = useState("GenericUser");
+  const [isEditMode, setIsEditMode] = useState(false);
+
   const [selectedEvent, setSelectedEvent] = useState('');
   const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, Festival: true, Class: true, Trip: true });
   const calendarRef = useRef(null);
-  const [userRole, setUserRole] = useState("GenericUser");
-  const [showOrganizerFilterModal, setShowOrganizerFilterModal] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
+
   const { categories, organizers } = useFetchDataDimensional();
-  const { events, setEvents } = useFetchDataEvents(userRole);
+
+  const [regions, setRegions] = useState([]);
+  const [region, setRegion] = useState('BOS'); // Default to BOS
+  const { events, setEvents } = useFetchDataEvents(userRole, region);
   const [filteredEvents, setFilteredEvents] = useState([]);
 
   const categoryBackgroundColors = {
@@ -79,12 +93,9 @@ function App() {
 
   // handle Functions
   const {
-    handleEventFormPut,
-    handleEventFormPost,
-    handleDeleteEvent,
-    clickedDate,
-    setClickedDate,
+    handleEventFormPut, handleEventFormPost, handleDeleteEvent, clickedDate, setClickedDate,
   } = useEventAPIHandlers(events, setEvents);
+
 
   const handleFilterChange = (categories) => {
     setActiveFilters((prevFilters) => ({
@@ -93,6 +104,19 @@ function App() {
     }));
 
   };
+
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const response = await fetch('/api/regions');
+        const data = await response.json();
+        setRegions(data); // Assuming data is an array of regions
+      } catch (error) {
+        console.error('Error fetching regions:', error);
+      }
+    };
+    fetchRegions();
+  }, []); // Empty dependency array to run only once
 
 
   const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters) => {
@@ -152,18 +176,24 @@ function App() {
   });
 
   const transformedEvents = (events) => {
+    if (!Array.isArray(events)) {
+      console.warn("The events parameter is not an array or is undefined:", events);
+      return []; // Return an empty array if events is undefined or not an array
+    }
+
     return events.map((event) => {
       if (event.recurrenceRule === "") {
         console.warn("Invalid empty string in event recurrenceRule:", event);
       }
-      console.log('Transform Event:')
-      //const rrule = event.recurrenceRule ? event.recurrenceRule : null;
+
+      console.log('Transform Event:', event.title); // Log the event title for better context
+
       return {
         id: event._id,
         title: event.title,
         start: event.startDate,
         end: event.endDate,
-        rrule: event.recurrenceRule,
+        rrule: event.recurrenceRule || null, // Ensure rrule is set to null if it's undefined
         extendedProps: {
           categoryFirst: event.categoryFirst,
           categorySecond: event.categorySecond,
@@ -177,18 +207,17 @@ function App() {
           active: event.active,
           featured: event.featured,
           cost: event.cost,
+          region: event.region,
         },
       };
     });
   };
-
   const renderEventContent = (eventInfo) => {
     const category1 = eventInfo.event.extendedProps.categoryFirst;
     const description = eventInfo.event.extendedProps.eventDescription || '';
     const shortDescription = description.length > 20 ? description.slice(0, 20) + '...' : description;
 
-    console.log('const renderEventContent :')//, eventInfo.event.title, ":", eventInfo.event.extendedProps.categoryFirst, eventInfo.event.extendedProps.categorySecond)
-
+    console.log('const renderEventContent')
     let textColor, fontStyle, fontSize, fontWeight, borderWidth, borderStyle, borderColor;
 
     const backgroundColor = categoryBackgroundColors[category1];
@@ -274,7 +303,8 @@ function App() {
       <div className="App">
         <header className="App-header">
           <img src="/TangoTiempo3.jpg" className="App-banner" alt="Tango Tiempo Banner" />
-          <h1>Welcome to Tango Tiempo</h1>
+          <h1>Welcome to Tango Tiempo for {region}</h1>
+
         </header>
         <div className="app-content">
           <EventFormModal
@@ -299,11 +329,22 @@ function App() {
           />
         </div>
         <div className="toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box display="flex" alignItems="center">
-            <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0', backgroundColor: '#f9f9f9' }}>
-              Active and Select Region
-            </div>
-          </Box>
+          <FormControl variant="outlined" style={{ minWidth: 120 }}>
+            <InputLabel id="region-select-label">Select Region</InputLabel>
+            <Select
+              labelId="region-select-label"
+              id="region-select"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              label="Select Region"
+            >
+              {regions.map((regionOption) => (
+                <MenuItem key={regionOption.regionCode} value={regionOption.regionCode}>
+                  {regionOption.regionName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <Box display="flex" alignItems="center">
             <CategoryFilter
               categories={categories}

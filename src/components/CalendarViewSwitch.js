@@ -4,6 +4,7 @@ import CalendarViewMonth from '@mui/icons-material/CalendarViewMonth';
 import ListIcon from '@mui/icons-material/List';
 
 const CalendarViewSwitch = ({ view, onChange }) => {
+    console.log("const CalendarViewSwitch");
     return (
         <div>
             <IconButton

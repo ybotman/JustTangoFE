@@ -1,50 +1,17 @@
 import { useEffect, useState } from 'react';
 
-export const useFetchDataEvents = (userRole, organizerId) => {
+export const useFetchDataEvents = (userRole, region) => {
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
         const fetchEvents = async () => {
-            console.log('userRole:', userRole)
+            console.log('userRole:', userRole);
+            console.log('region:', region);
+
             try {
-                let response;
-                if (userRole === "GenericUser") {
-                    response = await fetch(`/api/events`);
-                } else {
-                    console.log('Error return all events:');
-                    response = await fetch('/api/events');
-                }
+                let query = `/api/events?region=${region}`;
 
-
-                if (userRole === "KnonwUser") {
-                    response = await fetch(`/api/events`);
-                } else {
-                    console.log('Error return all events:');
-                    response = await fetch('/api/events');
-                }
-
-
-                if (userRole === "Organizer") {
-                    response = await fetch(`/api/events/owner/${organizerId}`);
-                } else {
-                    response = await fetch('/api/events');
-                }
-
-                if (userRole === "RegionalAdmin") {
-                    response = await fetch(`/api/events/owner/${organizerId}`);
-                } else {
-                    console.log('Error return all events:');
-                    response = await fetch('/api/events');
-                }
-
-                if (userRole === "SystemAdmin") {
-                    response = await fetch(`/api/events/owner/${organizerId}`);
-                } else {
-                    console.log('Error return all events:');
-                    response = await fetch('/api/events');
-                }
-
-
+                const response = await fetch(query);
                 const data = await response.json();
                 setEvents(data);
             } catch (error) {
@@ -53,10 +20,7 @@ export const useFetchDataEvents = (userRole, organizerId) => {
         };
 
         fetchEvents();
-    }, [userRole, organizerId]);
+    }, [userRole, region]);
 
-    return {
-        events,
-        setEvents
-    };
+    return { events, setEvents };
 };
