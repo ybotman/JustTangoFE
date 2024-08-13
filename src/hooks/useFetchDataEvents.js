@@ -9,7 +9,7 @@ export const useFetchDataEvents = (userRole, organizerId) => {
             try {
                 let response;
                 if (userRole === "GenericUser") {
-                    response = await fetch(`/api/events/ region???`);
+                    response = await fetch(`/api/events`);
                 } else {
                     console.log('Error return all events:');
                     response = await fetch('/api/events');
@@ -17,7 +17,7 @@ export const useFetchDataEvents = (userRole, organizerId) => {
 
 
                 if (userRole === "KnonwUser") {
-                    response = await fetch(`/api/events/ region???`);
+                    response = await fetch(`/api/events`);
                 } else {
                     console.log('Error return all events:');
                     response = await fetch('/api/events');

@@ -273,7 +273,7 @@ function App() {
     <ThemeProvider theme={customTheme}>
       <div className="App">
         <header className="App-header">
-          <img src="/TangoTiempo2.jpg" className="App-banner" alt="Tango Tiempo Banner" />
+          <img src="/TangoTiempo3.jpg" className="App-banner" alt="Tango Tiempo Banner" />
           <h1>Welcome to Tango Tiempo</h1>
         </header>
         <div className="app-content">

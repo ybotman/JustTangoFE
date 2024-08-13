@@ -20,9 +20,9 @@
 
 .App-banner {
   width: 100%;
-  height: 100px;
+  height: 200%;
   /* Reduced height for a narrower banner */
-  object-fit: cover;
+  object-fit: contain;
   /* Ensures the image covers the entire area */
 }
 
