@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 export const useFetchDataDimensional = () => {
     const [categories, setCategories] = useState([]);
     const [organizers, setOrganizers] = useState([]);
+    const [regions, setRegions] = useState([]);
     //    const [events, setEvents] = useState([]);
     const [events] = useState([]);
     const [error, setError] = useState(null);
@@ -19,6 +20,18 @@ export const useFetchDataDimensional = () => {
         }
     };
 
+    const fetchRegions = async () => {
+        console.log('fetchRegions =move?')
+        try {
+            const response = await fetch('/api/regions');
+            const data = await response.json();
+            setRegions(data); // Assuming data is an array of regions
+        } catch (error) {
+            console.error('Error fetching regions:', error);
+        }
+    };
+
+
     const fetchOrganizers = async () => {
         try {
             const response = await fetch('/api/organizersActive');
@@ -30,27 +43,16 @@ export const useFetchDataDimensional = () => {
         }
     };
 
-    /*    const fetchEvents = async () => {
-            try {
-                const response = await fetch('/api/events');
-                const data = await response.json();
-                setEvents(data);
-            } catch (error) {
-                console.error("Error fetching events:", error);
-                setError(error);
-            }
-        };
-    */
-
     useEffect(() => {
         fetchCategories();
         fetchOrganizers();
-        //      fetchEvents(); // Fetch events on load
+        fetchRegions();
     }, []);
 
     return {
         categories,
         organizers,
+        regions,
         events,
         error
     };

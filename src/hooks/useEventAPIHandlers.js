@@ -5,8 +5,6 @@ export const useEventAPIHandlers = (events, setEvents) => {
 
     const [clickedDate, setClickedDate] = useState('');
 
-    //const organizerId = 1; // Replace this with the actual organizer ID
-
     const handleEventFormPut = async (updatedEvent) => {
         console.log("PUT eventData:", updatedEvent);
         const { id, ...eventData } = updatedEvent;
