@@ -41,7 +41,7 @@ import './App.css';
 
 function App() {
   console.log("            --> function App() {...");
-  // State Declarations useState
+
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
   const [showOrganizerFilterModal, setShowOrganizerFilterModal] = useState(false);
@@ -52,11 +52,9 @@ function App() {
   const [isEditMode, setIsEditMode] = useState(false);
 
   const [selectedEvent, setSelectedEvent] = useState('');
-  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, Festival: true, Class: true, Trip: true });
+  const [activeFilters, setActiveFilters] = useState({ Milonga: true, Practica: true, Workshop: true, Festival: true, Class: false, Trip: false });
   const calendarRef = useRef(null);
-
   const { categories, organizers } = useFetchDataDimensional();
-
   const [regions, setRegions] = useState([]);
   const [region, setRegion] = useState('');
   const { events, setEvents } = useFetchDataEvents(userRole, region);
@@ -305,11 +303,11 @@ function App() {
               <Select
                 labelId="region-select-label"
                 id="region-select"
-                value={region}
+                value={regions.length ? region : ''}  // Use an empty string if regions aren't loaded yet
                 onChange={(e) => setRegion(e.target.value)}
                 label="Select Region"
               >
-                {regions.map((regionOption) => (
+                {Array.isArray(regions) && regions.map((regionOption) => (
                   <MenuItem key={regionOption.regionCode} value={regionOption.regionCode}>
                     {regionOption.regionName}
                   </MenuItem>
