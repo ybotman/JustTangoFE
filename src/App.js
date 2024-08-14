@@ -11,6 +11,8 @@ import rrulePlugin from '@fullcalendar/rrule';
 // Component imports
 import CategoryFilter from './components/CategoryFilter';
 import CalendarViewSwitch from './components/CalendarViewSwitch';
+import UserStateRole from './components/UserStateRole';
+
 import { useFetchDataDimensional } from './hooks/useFetchDataDimensional';
 import { useFetchDataEvents } from './hooks/useFetchDataEvents';
 import { useEventAPIHandlers } from './hooks/useEventAPIHandlers';
@@ -19,24 +21,18 @@ import { useEventAPIHandlers } from './hooks/useEventAPIHandlers';
 import LoginModal from './modals/LoginModal';
 import EventFormModal from './modals/EventFormModal';
 import OrganizerFilterModal from './modals/OrganizerFilterModal';
+import EventDetailsModal from './modals/EventDetails';
+//import BuyMeACoffeeButton from './components/BuyMeACoffee';
 
+// MUI
 import { Box, IconButton } from '@mui/material';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-
 import SettingsIcon from '@mui/icons-material/Settings';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-
-
-// old MUI Imports
-//import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
-//import PersonIcon from '@mui/icons-material/Person';
-//import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-//import EditCalendarIcon from '@mui/icons-material/EditCalendar';
-//import CalendarIcon from '@mui/icons-material/CalendarToday';
 
 import './customStyles.css';
 import './calendarStyles.css';
@@ -44,14 +40,13 @@ import './App.css';
 
 
 function App() {
-
   console.log("            --> function App() {...");
-
-
   // State Declarations useState
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showEventFormModal, setShowEventFormModal] = useState(false);
   const [showOrganizerFilterModal, setShowOrganizerFilterModal] = useState(false);
+  const [showEventDetailsModal, setShowEventDetailsModal] = useState(false);
+
 
   const [userRole, setUserRole] = useState("GenericUser");
   const [isEditMode, setIsEditMode] = useState(false);
@@ -63,7 +58,7 @@ function App() {
   const { categories, organizers } = useFetchDataDimensional();
 
   const [regions, setRegions] = useState([]);
-  const [region, setRegion] = useState('BOS'); // Default to BOS
+  const [region, setRegion] = useState('');
   const { events, setEvents } = useFetchDataEvents(userRole, region);
   const [filteredEvents, setFilteredEvents] = useState([]);
 
@@ -81,6 +76,8 @@ function App() {
   //   setIsEditMode((prevEditMode) => !prevEditMode);
   // };
 
+  // Theme and Render functions
+
   const toggleLoginModal = () => {
     setShowLoginModal((prevShowLoginModal) => !prevShowLoginModal);
     console.log('toggleLoginModal:', !showLoginModal);
@@ -91,7 +88,6 @@ function App() {
     console.log('toggledOrganizerFilterModal:', !showOrganizerFilterModal);
   };
 
-  // handle Functions
   const {
     handleEventFormPut, handleEventFormPost, handleDeleteEvent, clickedDate, setClickedDate,
   } = useEventAPIHandlers(events, setEvents);
@@ -118,13 +114,12 @@ function App() {
     fetchRegions();
   }, []); // Empty dependency array to run only once
 
-
-  const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters) => {
+  const useHandlers = (userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters, setShowEventDetailsModal) => {
 
     const handleEventClick = useCallback((event) => {
       setSelectedEvent(event);
-      setShowEventFormModal(true);
-    }, [setSelectedEvent, setShowEventFormModal]);
+      setShowEventDetailsModal(true); // Show the event details modal
+    }, [setSelectedEvent, setShowEventDetailsModal]);
 
     const handleDateClick = useCallback((date) => {
       setClickedDate(date);
@@ -148,13 +143,13 @@ function App() {
     handleEventClick,
     handleDateClick,
     handleViewChange,
-  } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters);
+  } = useHandlers(userRole, isEditMode, setSelectedEvent, setShowEventFormModal, setClickedDate, setUserRole, calendarRef, setActiveFilters, setShowEventDetailsModal);
 
   const handleOrganizerFilterApply = (filters) => {
     console.log(' handleOrganizerFilterApply ', filters);
   };
 
-  // Theme and Render functions
+
   const customTheme = createTheme({
     components: {
       MuiSwitch: {
@@ -302,9 +297,27 @@ function App() {
     <ThemeProvider theme={customTheme}>
       <div className="App">
         <header className="App-header">
-          <img src="/TangoTiempo3.jpg" className="App-banner" alt="Tango Tiempo Banner" />
-          <h1>Welcome to Tango Tiempo for {region}</h1>
+          <img src="/TangoTiempo4.jpg" className="App-banner" alt="Tango Tiempo Banner" />
+          <Box display="flex" alignItems="center" justifyContent="space-between">
+            <h1>Welcome to Tango Tiempo for {region}</h1>
+            <FormControl variant="outlined" style={{ minWidth: 120, marginLeft: '20px' }}>
+              <InputLabel id="region-select-label">Select Region</InputLabel>
+              <Select
+                labelId="region-select-label"
+                id="region-select"
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                label="Select Region"
+              >
+                {regions.map((regionOption) => (
+                  <MenuItem key={regionOption.regionCode} value={regionOption.regionCode}>
+                    {regionOption.regionName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
+          </Box>
         </header>
         <div className="app-content">
           <EventFormModal
@@ -327,24 +340,13 @@ function App() {
             onApply={handleOrganizerFilterApply}
             organizers={organizers}
           />
+          <EventDetailsModal
+            open={showEventDetailsModal}
+            onClose={() => setShowEventDetailsModal(false)}
+            event={selectedEvent} // Pass the selected event data
+          />
         </div>
         <div className="toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <FormControl variant="outlined" style={{ minWidth: 120 }}>
-            <InputLabel id="region-select-label">Select Region</InputLabel>
-            <Select
-              labelId="region-select-label"
-              id="region-select"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              label="Select Region"
-            >
-              {regions.map((regionOption) => (
-                <MenuItem key={regionOption.regionCode} value={regionOption.regionCode}>
-                  {regionOption.regionName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <Box display="flex" alignItems="center">
             <CategoryFilter
               categories={categories}
@@ -360,7 +362,10 @@ function App() {
             <IconButton onClick={toggleOrganizerFilterModal} sx={{ color: 'lightcoral' }}>
               <FilterAltIcon />
             </IconButton>
-            <IconButton sx={{ color: 'lightcoral' }}>
+            <Box display="flex" alignItems="right">
+              <UserStateRole />
+            </Box>
+            <IconButton sx={{ color: 'lightgrey' }}>
               <SettingsIcon />
             </IconButton>
           </Box>
@@ -391,7 +396,6 @@ function App() {
     </ThemeProvider>
   );
   //end of return
-
 }
 
 export default App;

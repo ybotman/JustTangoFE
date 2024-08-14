@@ -18,9 +18,31 @@
   }
 }
 
+/* Ensure the dropdown has a white background */
+#region-select {
+  background-color: white;
+  color: black;
+  /* Optional: Ensures the text color contrasts with the white background */
+}
+
+#region-select .MuiOutlinedInput-root {
+  background-color: white;
+  /* Ensures the dropdown input remains white */
+}
+
+#region-select .MuiSelect-select {
+  background-color: white;
+  /* Ensures the selected option remains white */
+}
+
+#region-select .MuiPaper-root {
+  background-color: white;
+  /* Ensures the dropdown options have a white background */
+}
+
 .App-banner {
   width: 100%;
-  height: 200%;
+  height: 2%;
   /* Reduced height for a narrower banner */
   object-fit: contain;
   /* Ensures the image covers the entire area */
